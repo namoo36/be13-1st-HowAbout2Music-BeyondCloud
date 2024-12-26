@@ -1,3 +1,8 @@
+.gitignore
+
+dummy_uft8.sql
+dummy.sql
+
 # Compiled class file
 *.class
 

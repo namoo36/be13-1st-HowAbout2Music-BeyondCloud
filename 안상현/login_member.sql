@@ -5,6 +5,10 @@ show tables;
 
 select * from Song;
 
+# 개선이 필요한 사항
+-- 1. member 테이블의 email, nickname 컬럼에 unique 설정이 필요한가요?
+
+
 #로그인 / 회원가입
 -- 회원가입 : 회원 정보를 입력하면 회원 정보가 저장된다.
 desc Member;
