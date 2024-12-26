@@ -1,7 +1,7 @@
 -- --------------------------------------------------------
--- 호스트:                          127.0.0.1
--- 서버 버전:                        10.11.7-MariaDB - mariadb.org binary distribution
--- 서버 OS:                        Win64
+-- 호스트:                          beyondclouddb.cj4mw46g2m7w.us-east-2.rds.amazonaws.com
+-- 서버 버전:                        10.4.34-MariaDB-log - Source distribution
+-- 서버 OS:                        Linux
 -- HeidiSQL 버전:                  12.7.0.6850
 -- --------------------------------------------------------
 
@@ -118,7 +118,7 @@ INSERT INTO `member` (`member_id`, `password`, `name`, `isLogin`, `reg_date`, `e
 	(393, '1234', '이태민', 0, '2024-12-26', 'taemin@by.kr', '태민', 0),
 	(394, '3583', '김태연', 0, '2024-12-26', 'teng@by.kr', '태연', 0),
 	(395, '1234', '강태현', 0, '2024-12-26', 'Thyun@by.kr', '태현', 0),
-	(396, '1234', '김태형', 0, '2024-12-26', 'treestar@music.com', '폴킴', 2),
+	(396, '12song_unlike`Member', '김태형', 0, '2024-12-26', 'treestar@music.com', '폴킴', 2),
 	(397, '1845', 'TWICE', 0, '2024-12-26', 'TWICE@by.kr', 'TWICE', 2),
 	(398, '1234', '투AM', 0, '2024-12-26', 'twoam@music.com', '"2AM"', 2),
 	(399, '1234', 'TWS', 0, '2024-12-26', 'tws@by.kr', '투어스', 2),
@@ -163,7 +163,7 @@ INSERT INTO `member` (`member_id`, `password`, `name`, `isLogin`, `reg_date`, `e
 	(438, '1234', '빅뱅', 0, '2024-12-26', 'bigbang@by.kr', '빅뱅', 2),
 	(439, '1234', '강대성', 0, '2024-12-26', 'bigStar@by.kr', '대성', 0),
 	(440, '1234', '검정치마', 0, '2024-12-26', 'blackskirt@by.kr', '검정치마', 2),
-	(441, '1234', '송하예', 0, '2024-12-26', 'bluesol@music.com', '송하예', 0),
+	(441, '1234', '송하예', 0, '2024-12-26', 'bluesol@music.com', '송하예', 2),
 	(442, '1234', '부승관', 0, '2024-12-26', 'boo@by.kr', '승관', 0),
 	(443, '1234', 'BTOB', 0, '2024-12-26', 'btob@by.kr', '비투비', 2),
 	(444, '1234', 'BTS', 0, '2024-12-26', 'bts@by.kr', '방탄소년단', 2),
@@ -335,7 +335,7 @@ CREATE TABLE IF NOT EXISTS `song` (
   `genre` varchar(10) NOT NULL,
   `Streaming_cnt` int(11) NOT NULL DEFAULT 0,
   `album_id` bigint(20) NOT NULL,
-  `length` time NOT NULL,
+  `length` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`song_id`),
   KEY `FK_Album_TO_Song_1` (`album_id`),
   CONSTRAINT `FK_Album_TO_Song_1` FOREIGN KEY (`album_id`) REFERENCES `album` (`album_id`)
