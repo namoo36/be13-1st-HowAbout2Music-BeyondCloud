@@ -22,8 +22,18 @@ CREATE OR REPLACE PROCEDURE make_playlist(
 )
 BEGIN 
 	SET is_shared = IFNULL(is_shared, 0);
-	INSERT INTO playlist(`name`, member_id, isPublic) 
-	VALUES(play_list_name, uid, is_shared);
+	
+	IF NOT EXISTS (
+		SELECT *
+		FROM playlist
+		WHERE member_id = uid AND NAME = play_list_name
+	)
+	THEN 
+		INSERT INTO playlist(`name`, member_id, isPublic) 
+		VALUES(play_list_name, uid, is_shared);
+	ELSE 
+	   SELECT '이미 있는 이름입니다.';
+	END IF;
 END $$
 DELIMITER ;
 
@@ -49,7 +59,7 @@ BEGIN
 		INSERT INTO song_in_playlist(plyaList_id, song_id) 
 		VALUES(ply_id, song_id);
 	ELSE 
-		SELECT '이미 존재하는 곡입니다.';
+		SELECT '이미 플리에 존재하는 곡입니다.';
 	END IF;
 END $$
 DELIMITER ;
@@ -62,6 +72,7 @@ DELIMITER ;
 --  필요한 값 -> 노래 재생 시간 / 시작 시간도 필요,
 SHOW VARIABLES LIKE 'event_scheduler';
 SET GLOBAL event_scheduler = ON;
+
 DELIMITER $$
 CREATE OR REPLACE PROCEDURE del_song_cur_ply(
 	IN now_pid BIGINT(20), 
@@ -74,6 +85,7 @@ BEGIN
 	WHERE nowPlayList_id = now_pid;
 END $$
 DELIMITER ; 
+
 DELIMITER $$
 CREATE OR REPLACE PROCEDURE add_song_current_ply(
 	IN uid BIGINT (20),
@@ -170,6 +182,9 @@ BEGIN
 	END IF;
 END $$
 DELIMITER ;
+
+
+
 -- < 아티스트 승인이 된 유저는 노래를 등록할 수 있다.(여러 곡) > 
 -- 유저 아이디, 노래 이름, 앨범 이름 입력 받기
 -- 해당 아이디의 역할이 아티스트이면 노래 인서트 가능,
@@ -336,7 +351,7 @@ DELIMITER ;
 
 
 
--- < 노래에 대한 좋아요 남기기 가능- 계정 당 한 번 >
+-- < 앨범에 대한 좋아요 남기기 가능- 계정 당 한 번 >
 --  좋아요 관련 테이블도 새로 생성해야 할 것 같음
 -- 한 계정 당 한 번의 좋아요인 경우~~~
 -- 노래에 song_count를 넣는 형태가 아니라 특정 노래 당 유저 한 명의 좋아요 하나씩 넣는 방식으로
