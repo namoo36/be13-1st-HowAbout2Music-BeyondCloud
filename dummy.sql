@@ -287,7 +287,7 @@ INSERT INTO `member` (`member_id`, `password`, `name`, `isLogin`, `reg_date`, `e
 	(560, '1234', '서은광', 0, '2024-12-26', 'seo@by.kr', '서은광', 0),
 	(561, '3163', '강슬기', 0, '2024-12-26', 'seul@by.kr', '슬기', 0),
 	(562, '1234', '오세훈', 0, '2024-12-26', 'sh@by.kr', '세훈', 0),
-	(563, '1234', '블랙핑크',0,'2024-12-26', 'sh@by.kr', '세훈', 2);
+	(563, '1234', '블랙핑크',0,'2024-12-26', 'sh@by.kr', '블랙핑크', 2);
 
 -- 테이블 beyondcloud.nowplaylist 구조 내보내기
 CREATE TABLE IF NOT EXISTS `nowplaylist` (
