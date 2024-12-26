@@ -2,12 +2,6 @@
 USE beyondcloud;
 
 
-INSERT INTO member(PASSWORD,NAME, email, nickname) VALUES (1234, 'lee', 'sjeseg', 'namoo');
-DELETE FROM member WHERE member_id = 1;
-DELETE FROM playlist WHERE member_id = 1;
-
-
-
 -- 개인 유저 별 플레이리스트 생성 프로시저
 -- < 개인 회원 플레이리스트 생성 >
 --  유저 아이디/ 플리 이름/공유유무만 받아서 새롭게 생성 
@@ -66,6 +60,7 @@ DELIMITER ;
 
 
 
+
 -- < 노래를 현재 재생 목록에 담을 수 있다 >
 --  유저 아이디, 노래 아이디, 현재 시간, 노래 전체 플레이 시간 받기
 --  유저가 노래를 시작하면 현재 재생 목록이 생성 + 현재 재생목록 아이디도 같이 생성
@@ -73,6 +68,8 @@ DELIMITER ;
 SHOW VARIABLES LIKE 'event_scheduler';
 SET GLOBAL event_scheduler = ON;
 
+
+-- 현재 재생목록 아이디 / 노래 아이디를 입력 받아서 각각 제거하는 프로시저
 DELIMITER $$
 CREATE OR REPLACE PROCEDURE del_song_cur_ply(
 	IN now_pid BIGINT(20), 
@@ -86,11 +83,12 @@ BEGIN
 END $$
 DELIMITER ; 
 
+-- 유저 아이디, 노래 아이디 입력 받기 
+-- > 현재 재생 목록을 새롭게 생성한 뒤, 노래 재생 시점을 기점으로 노래 추가
 DELIMITER $$
 CREATE OR REPLACE PROCEDURE add_song_current_ply(
 	IN uid BIGINT (20),
-	IN s_id BIGINT (20),
-	IN p_time INT -- > 초단위로 입력받기
+	IN s_id BIGINT (20)
 )
 BEGIN
 	DECLARE now_ply_id BIGINT(20);
@@ -110,7 +108,7 @@ BEGIN
 		FROM nowplaylist
 		WHERE member_id = uid;
 		
-		INSERT INTO song_in_nowplaylist(song_id, nowplayList_id) VALUES (s_id, now_ply_id);
+		INSERT INTO song_in_nowplaylist(song_id, nowplayList_id, time) VALUES (s_id, now_ply_id, NOW());
 		
 	ELSE 
 		-- 해당 유저가 생성한 현재 재생 목록의 아이디를 now_ply_id에 받음
@@ -119,7 +117,7 @@ BEGIN
 		WHERE member_id = uid;
 		
 		UPDATE song_in_nowplaylist
-		SET song_id = s_id, time = NOW(), ply_time = p_time 
+		SET song_id = s_id, time = NOW()
 		WHERE member_id = uid;
 	END IF;
 	
@@ -156,7 +154,7 @@ CREATE OR REPLACE PROCEDURE insert_one_song_only_artist(
 	IN s_name VARCHAR (30),
 	IN s_genre VARCHAR(10),
 	IN a_name VARCHAR (50),
-	IN s_time INT -- > 노래 시간 받기
+	IN s_time TIME -- > 노래 시간 받기
 )
 BEGIN 
 	DECLARE u_role VARCHAR(5);
@@ -175,8 +173,8 @@ BEGIN
 			SET new_album_id = LAST_INSERT_ID();
 			
 			-- 노래를 해당 앨범 아이디에 저장
-			INSERT INTO song(`name`, genre, album_id) 
-			VALUES(s_name, s_genre, new_album_id);
+			INSERT INTO song(`name`, genre, album_id, length) 
+			VALUES(s_name, s_genre, new_album_id, s_time);
 	ELSE 
 			SELECT '일반 유저는 노래를 추가할 수 없습니다.';
 	END IF;
@@ -221,10 +219,10 @@ BEGIN
 		WHILE song_count <= LENGTH(s_name) - LENGTH(REPLACE(s_name, ',', '')) + 1
 		DO 
 			SET song_title = TRIM(SUBSTRING_INDEX(s_name, ',',song_count));
-			SET song_time = CAST(TRIM(SUBSTRING_INDEX(s_time, ',',song_count)) AS INT);
+			SET song_time = CAST(TRIM(SUBSTRING_INDEX(s_time, ',',song_count)) AS TIME);
 			
-			INSERT INTO song(`name`, genre, album_id) 
-			VALUES(song_title, s_genre, new_album_id);
+			INSERT INTO song(`name`, genre, album_id, length) 
+			VALUES(song_title, s_genre, new_album_id, song_time);
 			
 			SET song_count = song_count + 1;
 		END WHILE;
@@ -264,7 +262,7 @@ BEGIN
 	
 	IF u_role LIKE 'Artist' THEN
 	
-		-- 해당 유저가 저장한 노래의 u_id를 확인
+		-- 해당 유저가 저장한 노래이름을 이용해 u_id를 확인
 		SELECT s.song_id INTO `song_u_id`
 		FROM song AS s 
 		JOIN album AS a ON s.album_id = a.album_id
@@ -355,38 +353,74 @@ DELIMITER ;
 --  좋아요 관련 테이블도 새로 생성해야 할 것 같음
 -- 한 계정 당 한 번의 좋아요인 경우~~~
 -- 노래에 song_count를 넣는 형태가 아니라 특정 노래 당 유저 한 명의 좋아요 하나씩 넣는 방식으로
-/*
-CREATE TABLE song_like(
-	like_id BIGINT(20),
-	m_id BIGINT(20),
-	s_id BIGINT(20),
-	UNIQUE (m_id, s_id)    -- 한 유저 당 특정 노래에 대해 단 하나의 값만 가질 수 있도록
-);
-	
+
+-- 좋아요 누른 경우 ~~
 DELIMITER $$
 CREATE OR REPLACE PROCEDURE member_add_song_like(
 	IN uid BIGINT (20),
-	IN s_id BIGINT (20)
+	IN a_id BIGINT (20)
 )
 BEGIN 
 	IF NOT EXISTS (
 		SELECT *
-		FROM song_like
-		WHERE member_id = m_id AND song_id = s_id;
+		FROM like_cnt
+		WHERE member_id = uid AND album_id = a_id
 	) 
 	THEN
-		INSERT INTO song_like(member_id, song_id) VALUES (m_id, s_id);
-		UPDATE song SET good_cnt = good_cnt + 1 WHERE song_id = s_id;
+		INSERT INTO like_cnt(member_id, album_id) VALUES(uid, a_id);
 	ELSE
-		SELECT '이미 좋아요를 누른 곡입니다.';
+		SELECT '이미 좋아요를 누른 앨범입니다.';
 	END IF;
 END $$
 DELIMITER ;
-);
-*/
 
 
+-- 좋아요 수 증가시키는 트리거
+DELIMITER $$
+CREATE OR REPLACE TRIGGER plus_like_cnt
+AFTER INSERT ON like_cnt
+FOR EACH ROW
+BEGIN 
+	UPDATE album 
+	SET good_cnt = good_cnt + 1 
+	WHERE song_id = new.album_id;
+END $$
+DELIMITER ;
 
+
+-- 좋아요 취소
+-- 유저 아이디, 앨범 아이디를 입력 받기
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE member_cancel_song_like(
+	IN uid BIGINT (20),
+	IN a_id BIGINT (20)
+)
+BEGIN 
+	IF NOT EXISTS (
+		SELECT *
+		FROM like_cnt
+		WHERE member_id = uid AND album_id = a_id
+	) 
+	THEN
+		SELECT '좋아요를 누르지 않았습니다.';
+	ELSE
+		DELETE FROM like_cnt
+		WHERE member_id = uid AND album_id = a_id;
+	END IF;
+END $$
+DELIMITER ;
+
+-- 좋아요 수 감소시키는 트리거
+DELIMITER $$
+CREATE OR REPLACE TRIGGER plus_like_cnt
+AFTER INSERT ON like_cnt
+FOR EACH ROW
+BEGIN 
+	UPDATE album 
+	SET good_cnt = good_cnt - 1 
+	WHERE song_id = new.album_id;
+END $$
+DELIMITER ;
 
 -- < 노래 제목으로 검색할 수 있다 >
 -- 노래 이름 입력, -> 동일한 이름의 노래를 몇 개까지 허용? 전체 출력?
@@ -463,23 +497,17 @@ DELIMITER ;
 
 
 -- < 좋아요 10만개 이상이면 명반 등극 >
-/*
-CREATE TABLE masterpiece_song(
-	song_id BIGINT(20),
-	album_id BIGINT(20),
-	good_cnt BIGINT(20)
-);
+
 DELIMITER $$
 CREATE OR REPLACE TRIGGER enroll_masterpiece
-AFTER INSERT ON song
+AFTER INSERT ON album
 FOR EACH ROW
 BEGIN 
 	IF new.good_cnt > 100000 THEN
-		INSERT INTO masterpiece_song VALUES(new.song_id, new.album_id, new.good_cnt);
+		UPDATE album SET FIELD = 1 WHERE album_id = NEW.album_id;
 	END IF;
 END $$
 DELIMITER ; 
-*/
 
 
 
