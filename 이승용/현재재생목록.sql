@@ -15,7 +15,7 @@ USE beyondcloud;
 
 
 DELIMITER $$
-CREATE OR REPLACE PROCEDURE add_song_current_ply(
+CREATE OR REPLACE PROCEDURE play_song_current_ply(
 	IN uid BIGINT (20),
 	IN s_id BIGINT (20)
 )
@@ -60,6 +60,7 @@ BEGIN
 	-- 해당 노래를 재생중인 노래 / 현재 재생목록에 담긴 노래에 저장
 	INSERT INTO song_in_nowplaylist(song_id, nowplayList_id) VALUES (s_id, now_ply_id);
 	INSERT INTO Listening_song(Listening_song_id, nowplayList_id) VALUES (s_id, now_ply_id);
+	INSERT INTO streaming_count_by_member(member_id, song_id) VALUES (uid, s_id);
 	
 	EXECUTE IMMEDIATE CONCAT('DROP EVENT IF EXISTS ', 'del_song');
 	SET @event_sql = CONCAT(
@@ -126,5 +127,87 @@ DECLARE c_reg_date DATETIME;
 	ORDER BY reg_date
 	LIMIT 1;
 	
+END $$
+DELIMITER ;
+
+
+-- 현재 재생 목록에 노래 추가
+-- 유저 아이디, 노래 아이디를 입력 받기
+-- 이미 재생 목록에 노래가 있는 경우 탈락!
+-- 현재 재생 목록이 없는 경우 재생 목록을 새롭게 생성하도록
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE add_cur_song_ply(
+	IN uid BIGINT (20),
+	IN s_id BIGINT (20)
+)
+BEGIN
+	DECLARE now_ply_id BIGINT(20);
+	DECLARE song_length INT;
+	
+	-- 유저가 현재 재생 목록을 가지고 있지 않은 경우
+	IF NOT EXISTS(
+		SELECT *
+		FROM nowplaylist
+		WHERE member_id = uid
+		)
+	THEN 
+		-- 해당 유저의 현재 재생 목록을 새롭게 생성해줌
+		INSERT INTO nowplaylist(member_id) VALUES (uid);
+	END IF;
+	
+	-- 해당 유저가 생성한 현재 재생 목록의 아이디를 now_ply_id에 받음
+	SELECT nowPlayList_id INTO now_ply_id
+	FROM nowplaylist
+	WHERE member_id = uid;
+	
+	-- 현재 재생 목록에 해당 노래가 없는 경우 노래를 추가
+	IF NOT EXISTS(
+		SELECT *
+		FROM song_in_nowplaylist
+		WHERE song_id = s_id AND nowplayList_id = now_ply_id	
+	) THEN
+		INSERT INTO song_in_nowplaylist(song_id, nowplayList_id) VALUES (s_id, now_ply_id);
+	ELSE
+		SELECT '이미 현재 재생 목록에 존재하는 노래입니다.';
+	END IF;
+	
+END $$
+DELIMITER ;
+
+
+-- 현재 재생 목록에서 노래 삭제
+-- 유저 아이디, 노래 아이디를 받아서 삭제
+-- 만약 해당 노래가 존재하지 않은 경우 -> 삭제할 노래가 없습니다.
+-- 유저 아이디의 현재 재생 목록이 없는 경우 -> 현재 재생 목록이 존재하지 않습니다.
+-- 삭제가 제대로 된 경우 -> 삭제가 완료되었습니다. 
+
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE del_cur_song_ply(
+	IN uid BIGINT (20),
+	IN s_id BIGINT (20)
+)
+BEGIN
+	DECLARE now_ply_id BIGINT(20);
+	DECLARE song_length INT;
+	
+	SELECT nowPlayList_id INTO now_ply_id
+	FROM nowplaylist
+	WHERE member_id = uid;
+	
+	-- 유저가 현재 재생 목록을 가지고 있지 않은 경우
+	IF ISNULL(now_ply_id)THEN 
+		SELECT '현재 재생 목록이 존재하지 않습니다.';
+	ELSE 
+		-- 만약 현재 재생 목록에 해당 노래가 존재하지 않는 경우
+		IF NOT EXISTS(
+			SELECT *
+			FROM song_in_nowplaylist
+			WHERE nowPlayList_id = now_ply_id AND song_id = s_id
+		) THEN SELECT '현재 재생 목록에 해당 노래가 존재하지 않습니다.';
+		ELSE 
+		  DELETE FROM song_in_nowplaylist WHERE song_id = s_id AND nowPlayList_id = now_ply_id;
+		END IF;
+	END IF;
+
 END $$
 DELIMITER ;
