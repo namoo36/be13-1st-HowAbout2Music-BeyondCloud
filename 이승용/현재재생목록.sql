@@ -35,9 +35,22 @@ BEGIN
 	END IF;
 	
 	-- 해당 유저가 생성한 현재 재생 목록의 아이디를 now_ply_id에 받음
-	SELECT member_id INTO now_ply_id
+	SELECT nowPlayList_id INTO now_ply_id
 	FROM nowplaylist
 	WHERE member_id = uid;
+	
+	
+	-- 현재 재생목록에 담긴 노래가 이미 존재할 경우 삭제
+	IF EXISTS(
+		SELECT *
+		FROM song_in_nowplaylist
+		WHERE song_id = s_id AND nowplayList_id = now_ply_id	
+	) THEN
+		DELETE FROM song_in_nowplaylist WHERE song_id = s_id AND nowplayList_id = now_ply_id;
+	END IF;
+	
+	-- 재생중인 노래 삭제
+	DELETE FROM Listening_song WHERE nowplayList_id = now_ply_id;
 	
 	-- 해당 아이디의 노래의 길이를 song_length에 저장
 	SELECT length INTO song_length
@@ -46,14 +59,14 @@ BEGIN
 	
 	-- 해당 노래를 재생중인 노래 / 현재 재생목록에 담긴 노래에 저장
 	INSERT INTO song_in_nowplaylist(song_id, nowplayList_id) VALUES (s_id, now_ply_id);
-	INSERT INTO Listening_song(song_id, nowplayList_id) VALUES (s_id, now_ply_id);
+	INSERT INTO Listening_song(Listening_song_id, nowplayList_id) VALUES (s_id, now_ply_id);
 	
-	
+	EXECUTE IMMEDIATE CONCAT('DROP EVENT IF EXISTS ', 'del_song');
 	SET @event_sql = CONCAT(
         'CREATE EVENT del_song', 
         ' ON SCHEDULE AT "', DATE_ADD(NOW(), INTERVAL song_length SECOND), '" ',
         'DO BEGIN ',
-        '   DELETE FROM Listening_song WHERE song_id = ', s_id, ' AND nowPlayList_id = ', now_ply_id, '; ',
+        '   DELETE FROM Listening_song WHERE Listening_song_id = ', s_id, ' AND nowPlayList_id = ', now_ply_id, '; ',
 		  '   DELETE FROM song_in_nowplaylist WHERE song_id = ', s_id, ' AND nowPlayList_id = ', now_ply_id, '; ',
         'END'
     );
@@ -70,12 +83,12 @@ DELIMITER ;
 -- 노래의 streaming_cnt가 1 증가되도록 하는 트리거 생성
 DELIMITER $$
 CREATE OR REPLACE TRIGGER song_streaming_cnt_increase
-AFTER INSERT INTO Listening_song
+AFTER INSERT ON Listening_song
 FOR EACH ROW
 BEGIN 
 	UPDATE song
 	SET Streaming_cnt = Streaming_cnt + 1
-	WHERE song_id = NEW.listening_song_id;
+	WHERE song_id = NEW.Listening_song_id;
 	
 END $$
 DELIMITER ;
@@ -90,8 +103,7 @@ DELIMITER ;
 DELIMITER $$
 CREATE OR REPLACE PROCEDURE next_cur_song(
 	IN u_id BIGINT(20),
-	IN s_id BIGINT(20),
-	OUT next_s_id BIGINT(20)
+	IN s_id BIGINT(20)
 )
 BEGIN
 DECLARE n_ply_id BIGINT(20);
@@ -105,12 +117,12 @@ DECLARE c_reg_date DATETIME;
 	-- 조회한 플레이 리스트 아이디 및 노래 아이디로 reg_date 조회
 	SELECT reg_date INTO c_reg_date
 	FROM Song_in_nowplaylist
-	WHERE nowPlayList_id = n_ply_i AND song_id = s_id;
+	WHERE nowPlayList_id = n_ply_id AND song_id = s_id;
 	
 	-- 날짜 순서대로 정렬되어 있는 노래들 중 제일 먼저 등록한 노래가 먼저 나오도록 
-	SELECT song_id INTO next_s_id
+	SELECT song_id
 	FROM Song_in_nowplaylist
-	WHERE nowPlayList_id = n_ply_id AND reg_date > c_reg_date
+	WHERE nowPlayList_id = n_ply_id AND reg_date < c_reg_date
 	ORDER BY reg_date
 	LIMIT 1;
 	
