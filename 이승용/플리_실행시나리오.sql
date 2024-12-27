@@ -126,3 +126,55 @@ JOIN song AS s ON sp.song_id = s.song_id
 WHERE playlist_id = 1;
 
 
+
+-- 김종대씨는 현재 재생 목록에 '오늘 아침은 고비다'라는 노래를 넣고 싶습니다.
+-- 해당 노래를 재생하면 현재 재생 목록이 없었을 경우 재생목록을 새로 생성한 뒤, 
+-- 재생중인 노래에 노래를 추가하고
+-- 현재 재생 목록에도 노래를 추가합니다. 
+CALL play_song_current_ply(522, 303);
+
+
+-- 동일한 노래를 또 추가할 경우 재생 중인 노래는 변하지 않고, 현재 재생 목록에도 중복된 노래는 들어가지 않습니다.
+-- 다만 재생중인 노래에 등록된 시간을 바꿀 뿐입니다. 
+CALL play_song_current_ply(522, 303);
+
+-- 김종대씨는 다른 노래를 듣고 싶어서 미노이의 'This is life'라는 노래를 추가하고자 합니다.
+-- 현재 재생 목록 아이디는 변하지 않습니다.
+-- 현재 재생 목록에 담긴 노래에 304번 노래가 추가됩니다.
+-- 재생중인 노래는 304번으로 바뀝니다. 
+-- 원래 듣던 노래는 재생목록에는 그대로 존재하게 됩니다. 
+CALL play_song_current_ply(522, 304);
+
+-- 재생을 시작하게 되면 스트리밍 횟수가 1씩 증가하게 됩니다. 
+-- 김종대씨가 노래를 다 들은 뒤 자동으로 재생되는 다음 노래가 궁금해서 확인해봅니다.
+-- 303번 노래를 들은 뒤에 304번 노래를 재생했을 경우, 그 이전에 가장 최근에 재생했던 노래가 다음 노래가 됩니다. 
+CALL next_cur_song(522, 304);
+
+
+-- 현재 재생 목록에 노래를 추가할 수 있다.
+-- 노래가 이미 있는 경우 '이미 있는 노래 입니다.' 출력
+CALL add_cur_song_ply(522, 304);
+
+-- 현재 재생 목록에 노래를 뺄 수 있다. 
+-- 현재 재생 목록이 없는 경우 -> '현재 재생 목록이 없습니다.'
+-- 현재 재생 목록에 노래가 없는 경우 -> '현재 재생 목록에 해당 노래가 없습니다.'
+CALL del_cur_song_ply(522, 304);
+
+SELECT *
+FROM nowplaylist
+WHERE member_id = 522;
+
+SELECT *
+FROM song_in_nowplayList
+WHERE nowPlayList_id = 3;
+
+SELECT *
+FROM listening_song
+WHERE nowPlayList_id = 3;
+
+SELECT *
+FROM song
+WHERE song_id = 303;
+
+SELECT *
+FROM streaming_count_by_member;
