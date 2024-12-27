@@ -1,5 +1,4 @@
 -- chart_id와 song_id들을 이용해서 song_in_chart에 INSERT
--- 차트안에 노래가 있으면 지우고 다시 삽입 구현해야 함
 -- call Insert_years_in_chart('2024');
 DELIMITER $$
 
@@ -13,8 +12,10 @@ BEGIN
     SELECT `chart_id` INTO output_chart_id
     FROM Chart
     WHERE `name` = input_chart_name;
-    
-    SELECT output_chart_id;
+
+    -- 동일한 chart_id를 가진 기존 데이터 삭제
+    DELETE FROM Song_In_Chart
+    WHERE chart_id = output_chart_id;
 
     -- song_in_chart에 데이터 삽입
     INSERT INTO Song_In_Chart (chart_id, song_id)
