@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS `Streaming_count_by_member` (
 	`member_id`	bigint	NOT NULL,
 	`song_id`	bigint	NOT NULL,
 	`Streaming_dateTime`	Date	NOT NULL	DEFAULT CURDATE(),
-	PRIMARY KEY(`Streaming_count`),
+	PRIMARY KEY(`Streaming_count_id`),
 	FOREIGN KEY (`member_id`) REFERENCES `Member` (`member_id`),
    FOREIGN KEY (`song_id`) REFERENCES `Song` (`song_id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
