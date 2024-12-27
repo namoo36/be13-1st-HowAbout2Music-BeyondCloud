@@ -31,8 +31,8 @@ END $$
 
 DELIMITER ;
 
+-- CALL Insert_years_in_chart('2023');
 
-CALL Insert_years_in_chart('2024');
 -- 차트를 부르는 프로시저
 -- char_name: 차트 이름을 뜻 하는 매개변수
 DELIMITER $$
@@ -47,7 +47,7 @@ BEGIN
 		s.album_id AS '앨범',
 		s.Streaming_cnt AS '재생 횟수',
 		s.`length` AS '곡 길이'
-	FROM Song_IStreaming_count_by_membern_Chart sic
+	FROM Song_in_Chart sic
 	RIGHT OUTER JOIN Song s ON sic.song_id = s.song_id
 	LEFT OUTER JOIN Chart c ON sic.chart_id = c.chart_id
 	WHERE c.`name` LIKE chart_name
@@ -57,4 +57,4 @@ END$$
 
 DELIMITER ;
 
-CALL Get_Chart('2024');
+-- CALL Get_Chart('2023');
