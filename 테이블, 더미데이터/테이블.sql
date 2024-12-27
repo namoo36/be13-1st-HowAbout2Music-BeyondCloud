@@ -9,7 +9,7 @@
 
 
 -- beyondcloud 데이터베이스 구조 내보내기
-CREATE DAbeyondcloudbeyondcloudTABASE IF NOT EXISTS `beyondcloud` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
+CREATE DATABASE IF NOT EXISTS `beyondcloud` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
 USE `beyondcloud`;
 
 CREATE TABLE IF NOT EXISTS `Role` (
@@ -59,11 +59,11 @@ CREATE TABLE IF NOT EXISTS `Album` (
 
 CREATE TABLE `Song` (
 	`song_id`	bigint	NOT NULL AUTO_INCREMENT,
-	`name`	varchar(20)	NOT NULL,
+	`name`	varchar(50)	NOT NULL,
 	`genre`	varchar(10)	NOT NULL,
 	`Streaming_cnt`	int	NOT NULL	DEFAULT 0,
 	`album_id`	bigint	NOT NULL,
-	`length`	time	NOT NULL,
+	`length`	int	NOT NULL,
 	PRIMARY KEY(`song_id`),
 	FOREIGN KEY (`album_id`) REFERENCES `Album` (`album_id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -122,11 +122,11 @@ CREATE TABLE IF NOT EXISTS `Song_In_Playlist` (
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `Streaming_count_by_member` (
-	`Streaming_count`	bigint	NOT NULL AUTO_INCREMENT,
+	`Streaming_count_id`	bigint	NOT NULL AUTO_INCREMENT,
 	`member_id`	bigint	NOT NULL,
 	`song_id`	bigint	NOT NULL,
 	`Streaming_dateTime`	Date	NOT NULL	DEFAULT CURDATE(),
-	PRIMARY KEY(`Streaming_count`),
+	PRIMARY KEY(`Streaming_count_id`),
 	FOREIGN KEY (`member_id`) REFERENCES `Member` (`member_id`),
    FOREIGN KEY (`song_id`) REFERENCES `Song` (`song_id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
