@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `Album` (
 
 CREATE TABLE `Song` (
 	`song_id`	bigint	NOT NULL AUTO_INCREMENT,
-	`name`	varchar(20)	NOT NULL,
+	`name`	varchar(50)	NOT NULL,
 	`genre`	varchar(10)	NOT NULL,
 	`Streaming_cnt`	int	NOT NULL	DEFAULT 0,
 	`album_id`	bigint	NOT NULL,
