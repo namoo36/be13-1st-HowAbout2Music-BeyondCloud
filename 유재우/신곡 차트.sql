@@ -30,10 +30,8 @@ END $$
 
 DELIMITER ;
 
+-- 신곡 차트 삽입
 -- CALL Insert_release_in_chart();
 
--- 차트를 부르는 프로시저
--- char_name: 차트 이름을 뜻 하는 매개변수
-DELIMITER $$
-
+-- 신곡 차트 조회
 -- CALL Get_Chart('신곡');
