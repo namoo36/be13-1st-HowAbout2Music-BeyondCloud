@@ -9,7 +9,7 @@
 
 
 -- beyondcloud 데이터베이스 구조 내보내기
-CREATE DAbeyondcloudbeyondcloudTABASE IF NOT EXISTS `beyondcloud` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
+CREATE DATABASE IF NOT EXISTS `beyondcloud` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
 USE `beyondcloud`;
 
 CREATE TABLE IF NOT EXISTS `Role` (
