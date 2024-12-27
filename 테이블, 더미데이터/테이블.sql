@@ -122,7 +122,7 @@ CREATE TABLE IF NOT EXISTS `Song_In_Playlist` (
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `Streaming_count_by_member` (
-	`Streaming_count`	bigint	NOT NULL AUTO_INCREMENT,
+	`Streaming_count_id`	bigint	NOT NULL AUTO_INCREMENT,
 	`member_id`	bigint	NOT NULL,
 	`song_id`	bigint	NOT NULL,
 	`Streaming_dateTime`	Date	NOT NULL	DEFAULT CURDATE(),
