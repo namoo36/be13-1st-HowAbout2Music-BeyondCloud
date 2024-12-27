@@ -63,7 +63,7 @@ CREATE TABLE `Song` (
 	`genre`	varchar(10)	NOT NULL,
 	`Streaming_cnt`	int	NOT NULL	DEFAULT 0,
 	`album_id`	bigint	NOT NULL,
-	`length`	time	NOT NULL,
+	`length`	int	NOT NULL,
 	PRIMARY KEY(`song_id`),
 	FOREIGN KEY (`album_id`) REFERENCES `Album` (`album_id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
