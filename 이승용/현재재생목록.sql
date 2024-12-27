@@ -15,7 +15,7 @@ USE beyondcloud;
 
 
 DELIMITER $$
-CREATE OR REPLACE PROCEDURE add_song_current_ply(
+CREATE OR REPLACE PROCEDURE play_song_current_ply(
 	IN uid BIGINT (20),
 	IN s_id BIGINT (20)
 )
@@ -60,6 +60,7 @@ BEGIN
 	-- 해당 노래를 재생중인 노래 / 현재 재생목록에 담긴 노래에 저장
 	INSERT INTO song_in_nowplaylist(song_id, nowplayList_id) VALUES (s_id, now_ply_id);
 	INSERT INTO Listening_song(Listening_song_id, nowplayList_id) VALUES (s_id, now_ply_id);
+	INSERT INTO streaming_count_by_member(member_id, song_id) VALUES (uid, s_id);
 	
 	EXECUTE IMMEDIATE CONCAT('DROP EVENT IF EXISTS ', 'del_song');
 	SET @event_sql = CONCAT(
