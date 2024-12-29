@@ -18,23 +18,23 @@ set global event_scheduler = on;
 drop event if exists evt_scheduler_chart100;
 delimiter $$
 create or replace event evt_scheduler_chart100
-on schedule every 1 minute
-starts now() -- concat(curdate()," 00:00:00")
+on schedule every 1 day
+starts concat(curdate()," 00:00:00")
 do
 begin
 	delete from chart_top100;-- 이전 기록 삭제
 
 	insert into chart_top100 (ranking, name, cnt) 
-	(select ROW_NUMBER() OVER (ORDER BY s.name), s.name 노래명, count(*) 재생횟수
+	(select row_number() over (order by cnt desc), s.name, count(*) cnt
 	from Streaming_count_by_member scbm
 	inner join Song s on scbm.song_id = s.song_id 
 	group by scbm.song_id
-	order by 3 desc
 	limit 0,100);
 end $$
 delimiter ;
 
-select * from chart_top100;
+select * from chart_top100 order by ranking;
+
 
 
 
@@ -51,16 +51,15 @@ create table if not exists chart_genre_top100(
 drop event if exists evt_scheduler_genre100;   
 delimiter $$
 create or replace event evt_scheduler_genre100
-on schedule every 1 minute
-starts now() -- concat(curdate()," 00:00:00")
+on schedule every 1 day
+starts concat(curdate()," 00:00:00")
 do
 begin
 	delete from chart_genre_top100;-- 이전 기록 삭제
 
 	insert into chart_genre_top100 (ranking, name, cnt) 
-	(select ROW_NUMBER() OVER (ORDER BY name), name 노래명, sum(Streaming_cnt) 재생횟수	from Song 
+	(select row_number() over (order by cnt desc), name, sum(Streaming_cnt) cnt from Song 
 	group by genre
-	order by 3 desc
 	limit 0,100);
 end $$
 delimiter ;   
@@ -72,7 +71,7 @@ select * from information_schema.events;
 SELECT * FROM information_schema.EVENTS WHERE EVENT_SCHEMA = 'how2music';
 
 
-select * from chart_genre_top100;
+select * from chart_genre_top100 order by ranking;
 
 
 -- 테스트를 위한 더미데이터
