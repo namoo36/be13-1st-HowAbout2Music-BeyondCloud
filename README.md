@@ -803,6 +803,7 @@ delimiter ;
 <summary>노래 제목 검색</summary>
 <div markdown="1">
 
+<img src="https://github.com/user-attachments/assets/42c6eef8-48c7-4e0d-9b68-7a2f437704bd" width="500" height="300"/>
 
 
 ```SQL
@@ -832,6 +833,9 @@ delimiter ;
 <summary>노래 가수 검색</summary>
 <div markdown="1">
 
+<img src="https://github.com/user-attachments/assets/f3ec03d7-2964-43e2-b3d7-87bcb61ad6d9" width="500" height="300"/>
+
+
 ```SQL
     DELIMITER $$
     CREATE OR REPLACE PROCEDURE search_singer_name(
@@ -859,6 +863,9 @@ delimiter ;
 <details>
 <summary>노래 장르 검색</summary>
 <div markdown="1">
+
+<img src="https://github.com/user-attachments/assets/be5d5217-ed81-4d49-aa76-a5ff06500e5d" width="500" height="300"/>
+
 
 ```SQL
     DELIMITER $$
@@ -891,7 +898,8 @@ delimiter ;
 <summary>앨범 좋아요 누르기 기능</summary>
 <div markdown="1">
 
-
+<img src="https://github.com/user-attachments/assets/0e65b0e0-0e65-4088-bcf0-0ed0eb305312" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/6f03db42-b589-4d84-b6a3-0d7b03ef36ab" width="500" height="300"/>
 
 ```SQL
     DELIMITER $$
@@ -920,6 +928,9 @@ delimiter ;
 <details>
 <summary>앨범 좋아요 취소 기능</summary>
 <div markdown="1">
+
+<img src="https://github.com/user-attachments/assets/019bc36b-34bf-47c8-944b-5b4915096332" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/5123beda-2425-4659-bfe5-8788830fbf42" width="500" height="300"/>
 
 ```SQL
     DELIMITER $$
@@ -979,6 +990,8 @@ delimiter ;
 <details>
 <summary>앨범 전체 노래 플리 등극 가능</summary>
 <div markdown="1">
+	
+<img src="https://github.com/user-attachments/assets/c4ddac6c-b447-4d08-aa04-91abd35052c3" width="500" height="300"/>
 
 ```SQL
     DELIMITER $$
