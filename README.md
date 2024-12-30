@@ -1251,9 +1251,259 @@ delimiter ;
     END $$
     DELIMITER ;
 ```
+</div>
+</details>
+
+
+<details>
+<summary>플레이 리스트 수정</summary>
+<div markdown="1">
+
+<img src="https://github.com/user-attachments/assets/cb6c6feb-a6dd-449d-8d9a-617f5a450241" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/42fed661-835b-4249-b762-103cf7550ce3" width="500" height="300"/>
+
+```sql
+DELIMITER $$
+
+CREATE OR REPLACE PROCEDURE playlist_u(
+    IN plName VARCHAR(50),
+    IN change_name VARCHAR(50),
+    IN Public TINYINT,
+    IN mem_id BIGINT(20)
+)
+BEGIN
+DECLARE c_name VARCHAR(50);
+
+	 SELECT NAME INTO c_name
+	 FROM playlist
+	 WHERE member_id = mem_id AND NAME = plName;
+
+	 -- 1, 0 이외의 값이 등록되면 0으로 기본 고정
+    IF Public NOT IN (0, 1) THEN
+        SET Public = 0;
+    END IF;
+    
+    IF c_name IS NULL THEN
+	    UPDATE playlist
+	    SET name = change_name, isPublic = Public
+	    WHERE name = plName AND member_id = mem_id;
+	 ELSE 
+	 	 SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '이미 존재하는 이름입니다.';
+	 END IF ;
+
+    SELECT *
+    FROM playlist
+    WHERE name = change_name AND member_id = mem_id;
+
+END $$
+DELIMITER ;
+```
+ 
+</div>
+</details>
+
+
+<details>
+<summary>플레이 리스트 삭제</summary>
+<div markdown="1">
+
+<img src="https://github.com/user-attachments/assets/db63dc5f-66a6-4b99-943a-f1ab88eaa11b" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/09c98b1e-f876-4fc0-a2ff-cafd9e86cd31" width="500" height="300"/>
+
+
+```sql
+DELIMITER $$
+
+CREATE or REPLACE PROCEDURE playlist_d(
+    IN plName VARCHAR(50), 
+    IN mem_id BIGINT(20)
+)
+BEGIN
+
+    DECLARE deleted_count INT;
+
+    -- 먼저, 플레이리스트에 속한 노래들 삭제
+    DELETE FROM song_in_playlist
+    WHERE playList_id IN (
+        SELECT playList_id 
+        FROM playlist 
+        WHERE name = plName 
+          AND member_id = mem_id
+    );
+
+    -- 플레이리스트 삭제
+    DELETE FROM playlist
+    WHERE name = plName
+      AND member_id = mem_id;
+
+    -- 삭제된 행 수 확인
+    SET deleted_count = ROW_COUNT();
+
+    IF deleted_count > 0 THEN
+      	SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '플레이리스트가 삭제되었습니다.';
+    ELSE
+      	SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '해당 플레이리스트가 존재하지 않습니다.' ;
+    END IF;
+
+END $$
+
+DELIMITER ;
+```
+
 
 </div>
 </details>
+
+
+
+<details>
+<summary>공개 플리 조회</summary>
+<div markdown="1">
+
+<img src="https://github.com/user-attachments/assets/34e12e51-3f85-48f5-adf5-a7a722c12b8d" width="500" height="300"/>
+
+```sql
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE playlist_public_r()
+BEGIN
+    SELECT `name`,
+	 			reg_date,
+	 			isPublic
+    FROM playlist 
+    WHERE isPublic = 1;
+
+END $$
+DELIMITER ;
+```
+</div>
+</details>
+
+<details>
+<summary>내 플리 제목 조회</summary>
+<div markdown="1">
+
+<img src="https://github.com/user-attachments/assets/68818906-f2c0-4617-b5fb-7d2c5e8f2d4f" width="500" height="300"/>
+
+```sql
+	DELIMITER $$
+	CREATE or REPLACE PROCEDURE playlist_title_r(
+	    IN mem_id BIGINT(20)
+	)
+	BEGIN
+	    SELECT name
+	    FROM playlist 
+	    WHERE member_id = mem_id;
+	END $$
+	DELIMITER ;
+```
+
+
+</div>
+</details>
+
+
+<details>
+<summary>내 플리 노래 조회</summary>
+<div markdown="1">
+	
+<img src="https://github.com/user-attachments/assets/da7c7f7b-920a-455e-9a87-69f2f0a484e2" width="500" height="300"/>
+
+```sql
+DELIMITER $$
+
+CREATE OR REPLACE PROCEDURE playlist_song_r(
+     IN pl_name VARCHAR(50),
+    IN mem_id BIGINT(20)
+)
+BEGIN
+    SELECT 
+        p.name AS playlist_name,
+        s.name AS song_name,
+        s.genre,
+        s.length
+    FROM playlist p
+   INNER JOIN song_in_playlist i
+   ON p.playList_id = i.playList_id
+   INNER JOIN song s
+   ON s.song_id = i.song_id
+    WHERE p.name = pl_name
+        AND p.member_id = mem_id;
+
+END $$
+
+DELIMITER ;
+
+```
+
+</div>
+</details>
+
+
+<details>
+<summary>플레이 리스트 복사</summary>
+<div markdown="1">
+
+<img src="https://github.com/user-attachments/assets/fe270670-384e-42e6-8adf-7c927489adc5" width="500" height="300"/>
+
+```sql
+	DELIMITER $$
+	
+	CREATE OR REPLACE PROCEDURE playlist_copy(
+		    IN original_mem_id BIGINT(20),  -- 원본 플레이리스트의 사용자 ID
+		    IN pl_name VARCHAR(50),        -- 원본 플레이리스트의 제목
+		    IN copy_mem_id BIGINT(20)      -- 복사할 플레이리스트를 받을 사용자 ID
+	)
+	BEGIN
+	    -- 새로 생성된 플레이리스트 ID 담을 변수 선언
+	    DECLARE new_playlist_id BIGINT;
+	
+	    -- playlist 테이블 복사
+	    INSERT INTO playlist(`name`, isPublic, member_id)
+	        SELECT `name`, 
+	            isPublic, 
+	            copy_mem_id 
+	        FROM playlist
+	        WHERE member_id = original_mem_id 
+				AND `name` = pl_name;
+	
+	    -- 새로 생성된 플레이리스트 ID 할당
+	    SET new_playlist_id = (SELECT playlist_ID 
+	                           FROM playlist
+	                           WHERE member_id = copy_mem_id 
+										AND `name` = pl_name);
+	        INSERT INTO song_in_playlist (playlist_id, song_id)
+	        SELECT new_playlist_id,
+	               song_id
+	        FROM song_in_playlist i
+	        INNER JOIN playlist p
+	        ON i.playList_id = p.playList_id
+	        WHERE member_id = original_mem_id
+	        AND `name` = pl_name;
+	
+	    SELECT 
+	        p.`name` AS playlist_name,
+	        s.`name` AS song_name,
+	        s.genre,
+	        s.length
+	    FROM playlist p
+	   INNER JOIN song_in_playlist i
+	   ON p.playList_id = i.playList_id
+	   INNER JOIN song s
+	   ON s.song_id = i.song_id
+	    WHERE p.`name` = pl_name
+	        AND p.member_id = copy_mem_id;
+	
+	END $$
+	
+	DELIMITER ;
+```
+
+</div>
+</details>
+
+
+
+
 
 #### 2. 노래 등록/수정
 <details>
