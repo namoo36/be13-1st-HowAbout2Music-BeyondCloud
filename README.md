@@ -1919,6 +1919,74 @@ delimiter ;
 </div>
 </details>
 
+&nbsp;
+### 차트🧑‍🎤
+
+<details>
+<summary>TOP100 차트 스케쥴러</summary>
+<div markdown="1">
+	
+<img src="https://github.com/user-attachments/assets/25813ed3-d9d0-4e87-ba11-a0c76c887d40" width="500" height="300"/>
+
+```SQL
+    DELIMITER $$
+CREATE or replace EVENT updateTop100chart
+ON SCHEDULE EVERY 1 DAY 												-- 이벤트가 매일 반복되도록 설정
+STARTS CURRENT_DATE
+DO
+BEGIN
+   DECLARE top100_chart_id BIGINT;
+	-- top100 차트 아이디 조회
+	SELECT chart_id INTO top100_chart_id
+	FROM Chart
+	WHERE Chart.name = 'top100';
+	-- 중복되지 않은 song_id 삽입
+    INSERT INTO Song_In_Chart (chart_id, song_id)
+    SELECT top100_chart_id, song_id
+    FROM (
+        SELECT song_id, ROW_NUMBER() OVER (PARTITION BY song_id ORDER BY song_id) AS rn
+        FROM Streaming_count_by_member
+    ) AS deduplicated
+    WHERE rn = 1 -- song_id 기준 첫 번째만 삽입
+    AND song_id NOT IN (
+        SELECT song_id
+        FROM Song_In_Chart
+        WHERE chart_id = top100_chart_id
+    );
+END$$
+DELIMITER ;
+```
+
+</div>
+</details>
+
+<details>
+<summary>TOP100 차트 조회</summary>
+<div markdown="1">
+	
+<img src="https://github.com/user-attachments/assets/2139c504-9d89-4335-ab1d-428cb756e62f" width="500" height="300"/>
+
+```SQL
+    SELECT RANK() over(order by ifnull(tbl1.streaming_cnt,0) DESC ) AS '순위',
+		 s.name,
+		 m.nickname AS '가수명',
+		 ifnull(tbl1.streaming_cnt,0) AS 재생횟수
+FROM (
+	SELECT song_id, IFNULL(COUNT(*),0) AS `streaming_cnt`
+	FROM Streaming_count_by_member
+	GROUP BY song_id
+) AS `tbl1`
+join Song_In_Chart AS sic ON sic.song_id = tbl1.song_id
+JOIN Chart AS c ON c.chart_id = sic.chart_id
+JOIN Song AS s ON s.song_id = sic.song_id
+JOIN Album AS a ON a.album_id = s.album_id
+JOIN Member AS m ON m.member_id = a.member_id;
+```
+
+</div>
+</details>
+
+
 
 --------------
 
