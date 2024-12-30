@@ -4,6 +4,185 @@
 
 --------
 ## 프로시저 실행 결과🔑
+### 회원관리👨‍💻
+
+<details>
+<summary>회원 가입</summary>
+<div markdown="1">
+
+```sql
+delimiter $$
+CREATE OR REPLACE PROCEDURE makeMemberProc (
+	IN inputName varchar(20),
+	IN inputPassword varchar(20),
+	IN inputEmail varchar(255),
+	IN inputNickname varchar(50)
+)
+BEGIN 
+	IF EXISTS(
+		SELECT *
+		FROM member
+		WHERE email LIKE inputEmail
+	) SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '이미 가입한 이메일입니다.';
+	ELSEIF EXISTS(
+		SELECT *
+		FROM member
+		WHERE nickname = inputNickname
+	) THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '이미 있는 닉네임입니다.';
+	ELSE	 
+		INSERT INTO Member (name, password, email, nickname) VALUES (inputName,inputPassword,inputEmail,inputNickname);
+	END IF;
+END $$
+delimiter ;
+```
+
+</div>
+</details>
+
+
+<details>
+<summary>로그인</summary>
+<div markdown="1">
+
+```sql
+delimiter $$
+CREATE OR REPLACE PROCEDURE loginMemberProc(
+	IN inputEmail varchar(255),
+	IN inputPassword varchar(20)
+)
+BEGIN 
+	IF NOT EXISTS(
+		SELECT *
+		FROM member
+		WHERE email LIKE inputEmail
+	) THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '가입된 적 없는 이메일입니다.';
+	ELSEIF NOT EXISTS (
+		SELECT *
+		FROM member 
+		WHERE email LIKE inputEmail AND PASSWORD LIKE inputPassword
+	) THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '비밀번호가 일치하지 않습니다. ';
+	ELSE 
+		UPDATE Member SET isLogin = 1 WHERE email = inputEmail and password = inputPassword;
+	END IF;
+END $$
+delimiter ;
+```
+
+</div>
+</details>
+
+<details>
+<summary>로그 아웃</summary></summary>
+<div markdown="1">
+
+```sql
+delimiter $$
+CREATE OR REPLACE PROCEDURE logoutMemberProc(
+	IN inputMemberId bigint(20)
+)
+BEGIN 
+	UPDATE Member SET isLogin = 0 WHERE member_id = inputMemberId;
+END $$
+delimiter ;
+```
+
+</div>
+</details>
+
+<details>
+<summary>회원 정보 수정</summary>
+<div markdown="1">
+
+```sql
+delimiter $$
+CREATE OR REPLACE PROCEDURE modifyMemberProc(
+	IN u_id BIGINT(20),
+	IN inputPassword varchar(20),
+	IN inputNickname varchar(50),
+	IN inputEmail varchar(255)
+)
+BEGIN 
+DECLARE cur_is_login TINYINT(4);
+
+	SELECT isLogin INTO cur_is_login
+	FROM member 
+	WHERE member_id = u_id;
+	
+	IF cur_is_login = 1
+	THEN 
+		UPDATE Member SET nickname = inputNickname, password = inputPassword  where email = inputEmail;
+	ELSE
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '로그인 되어 있지 않습니다.';
+	END IF;
+END $$
+delimiter ;
+```
+
+</div>
+</details>
+
+
+<details>
+<summary>아티스트 승격</summary>
+<div markdown="1">
+
+```sql
+delimiter $$
+CREATE OR REPLACE PROCEDURE confirmArtistProc(
+	IN inputMemberId bigint(20)
+)
+BEGIN 
+DECLARE c_member_id BIGINT(20);
+
+	SELECT member_id INTO c_member_id
+	FROM member 
+	WHERE member_id = inputMemberId; 
+	
+	IF ISNULL(c_member_id) 
+	THEN
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '존재하지 않는 회원입니다.';
+	ELSE 	
+		UPDATE Member SET role_code = 2 where member_id = inputMemberId;
+	END IF;
+END $$
+delimiter ;
+```
+
+</div>
+</details>
+
+
+<details>
+<summary>회원 탈퇴</summary>
+<div markdown="1">
+
+```sql
+delimiter $$
+CREATE OR REPLACE PROCEDURE deleteMemberProc(
+	IN inputMemberId bigint(20)
+)
+BEGIN 
+DECLARE c_member_id BIGINT(20);
+
+	SELECT member_id INTO c_member_id
+	FROM member 
+	WHERE member_id = inputMemberId; 
+	
+	IF ISNULL(c_member_id) 
+	THEN
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '존재하지 않는 회원입니다.';
+	ELSE 	
+		DELETE FROM Member WHERE member_id = inputMemberId;
+	END IF;
+END $$
+delimiter ;
+```
+
+</div>
+</details>
+
+
+&nbsp;
 ### 노래🎤
 #### 1. 플레이리스트
 <details>
