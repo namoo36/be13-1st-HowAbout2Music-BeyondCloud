@@ -2046,6 +2046,49 @@ DELIMITER ;
 </div>
 </details>
 
+<details>
+<summary>장르별 TOP100 차트 조회</summary>
+<div markdown="1">
+	
+<img src="https://github.com/user-attachments/assets/fcbed70c-25be-4bb0-9dc3-491a87d564fd" width="800" height="300"/>
+
+```SQL
+-- 장르 별 노래를 차트에 삽입
+DELIMITER $$
+
+CREATE OR REPLACE PROCEDURE Insert_genre_in_chart(
+    IN input_chart_name VARCHAR(10)
+)
+BEGIN
+    DECLARE output_chart_id BIGINT(20);
+
+    -- chart_name으로 chart_id 조회
+    SELECT `chart_id` INTO output_chart_id
+    FROM Chart
+    WHERE `name` = input_chart_name;
+
+    -- 동일한 chart_id를 가진 기존 데이터 삭제
+    DELETE FROM Song_In_Chart
+    WHERE chart_id = output_chart_id;
+
+    -- song_in_chart에 데이터 삽입
+    INSERT INTO Song_In_Chart (chart_id, song_id)
+    SELECT 
+        output_chart_id, 
+        s.song_id
+    FROM 
+        Song s    
+    WHERE s.genre = input_chart_name
+    ORDER BY s.Streaming_cnt DESC										-- 스트리밍 횟수 내림차순 정렬
+	 LIMIT 100;
+END $$
+
+DELIMITER ;
+```
+
+</div>
+</details>
+
 
 
 --------------
