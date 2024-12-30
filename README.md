@@ -1,4 +1,5 @@
 ![표지 pdf-1-4](https://github.com/user-attachments/assets/6c7ce186-c8a6-48b2-9b36-683053216532)
+##팀원소개
 ![팀원소개 pdf-1-1](https://github.com/user-attachments/assets/17d98071-a3ec-4f98-ae38-3ce6aba0ab56)
 ## 프로젝트 소개
 ![프로젝트 소개 pdf-1-2](https://github.com/user-attachments/assets/1ad75f60-3c7e-4a17-98c9-63d3b1b2065a)
