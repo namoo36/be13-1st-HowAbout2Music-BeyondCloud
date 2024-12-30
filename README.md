@@ -2454,7 +2454,7 @@ DELIMITER ;
 </details>
 
 ## WBS📅
-<img src="https://github.com/user-attachments/assets/6d8b4eae-4fdd-4b98-9dac-f8b68f710ed0" width="800" height="300"/>
+<img src="https://github.com/user-attachments/assets/6d8b4eae-4fdd-4b98-9dac-f8b68f710ed0" width="1000" height="400"/>
 
 --------------
 
