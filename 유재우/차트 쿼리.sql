@@ -9,6 +9,16 @@ VALUES
     ('인디'), ('랩'), ('K-POP'), ('발라드'), ('트로트')
 ;
 
+-- 하루가 지나면 실행되는 테이블 삭제 프로시저
+DELIMITER $$
+
+CREATE OR REPLACE PROCEDURE Refresh_Chart()
+BEGIN
+	TRUNCATE TABLE song_In_Chart;
+END $$
+
+DELIMITER ;
+
 -- 연대 별 모든 차트를 Song_In_Chart 테이블에 추가
 DELIMITER $$
 
