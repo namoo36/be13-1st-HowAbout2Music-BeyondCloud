@@ -2004,6 +2004,48 @@ JOIN Member AS m ON m.member_id = a.member_id;
 </div>
 </details>
 
+<details>
+<summary>연대별 TOP100 차트 조회</summary>
+<div markdown="1">
+	
+<img src="https://github.com/user-attachments/assets/3819fcc3-7cfb-4997-a55c-b11ec45e1aac" width="800" height="300"/>
+
+```SQL
+-- 연대 별 모든 차트를 Song_In_Chart 테이블에 추가
+DELIMITER $$
+
+CREATE OR REPLACE PROCEDURE Insert_All_In_Chart(
+    IN p_2000s_Chart_Id BIGINT,
+    IN p_2010s_Chart_Id BIGINT,
+    IN p_2020s_Chart_Id BIGINT
+)
+BEGIN
+    -- song_in_chart에 데이터 삽입
+    INSERT INTO Song_In_Chart (chart_id, song_id)
+    SELECT 
+        CASE
+            WHEN a.rel_date >= '2020-01-01' THEN p_2020s_Chart_Id
+            WHEN a.rel_date >= '2010-01-01' THEN p_2010s_Chart_Id
+            WHEN a.rel_date >= '2000-01-01' THEN p_2000s_Chart_Id
+            ELSE NULL
+        END AS chart_id,
+        s.song_id
+    FROM 
+        Song s
+    INNER JOIN Album a ON s.album_id = a.album_id
+    ORDER BY s.Streaming_cnt DESC
+    LIMIT 100;
+
+    -- 필요하면 결과 출력
+    SELECT chart_id FROM Chart;
+END $$
+
+DELIMITER ;
+```
+
+</div>
+</details>
+
 
 
 --------------
