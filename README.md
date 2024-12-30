@@ -1925,8 +1925,6 @@ delimiter ;
 <details>
 <summary>TOP100 차트 스케쥴러</summary>
 <div markdown="1">
-	
-<img src="https://github.com/user-attachments/assets/25813ed3-d9d0-4e87-ba11-a0c76c887d40" width="500" height="300"/>
 
 ```SQL
     DELIMITER $$
