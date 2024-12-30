@@ -10,6 +10,11 @@
 <summary>회원 가입</summary>
 <div markdown="1">
 
+<img src="https://github.com/user-attachments/assets/8ee1f70f-40b5-4833-a279-c3f5d57a4b33" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/905643dc-d81d-4723-9fc5-883275004c27" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/933f248a-ec98-44b6-80bb-6614c1918da1" width="500" height="300"/>
+
+
 ```sql
 delimiter $$
 CREATE OR REPLACE PROCEDURE makeMemberProc (
@@ -44,6 +49,11 @@ delimiter ;
 <summary>로그인</summary>
 <div markdown="1">
 
+<img src="https://github.com/user-attachments/assets/1463dff4-00ef-4507-ac11-e0c9eb160afd" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/f375bbdc-7a73-4150-a2f5-995f962fdde6" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/18504fee-bdf9-488b-8f1b-dc089ef02a59" width="500" height="300"/>
+
+
 ```sql
 delimiter $$
 CREATE OR REPLACE PROCEDURE loginMemberProc(
@@ -75,6 +85,8 @@ delimiter ;
 <summary>로그 아웃</summary></summary>
 <div markdown="1">
 
+<img src="https://github.com/user-attachments/assets/65d91e54-7b5b-4481-809b-bdc79fc8e1f7" width="500" height="300"/>
+
 ```sql
 delimiter $$
 CREATE OR REPLACE PROCEDURE logoutMemberProc(
@@ -92,6 +104,9 @@ delimiter ;
 <details>
 <summary>회원 정보 수정</summary>
 <div markdown="1">
+
+<img src="https://github.com/user-attachments/assets/d914a7d7-491f-46c5-9fd3-d28a5bfe9efb" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/dc25f611-d375-4543-b8c8-5f9323ed5146" width="500" height="300"/>
 
 ```sql
 delimiter $$
@@ -126,6 +141,11 @@ delimiter ;
 <summary>아티스트 승격</summary>
 <div markdown="1">
 
+
+<img src="https://github.com/user-attachments/assets/8447d3f1-5764-4455-9f3b-40cf66cf6c02" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/81c13263-1374-49f4-a16d-b56a82e20e4d" width="500" height="300"/>
+
+
 ```sql
 delimiter $$
 CREATE OR REPLACE PROCEDURE confirmArtistProc(
@@ -155,6 +175,10 @@ delimiter ;
 <details>
 <summary>회원 탈퇴</summary>
 <div markdown="1">
+
+
+<img src="https://github.com/user-attachments/assets/81c13263-1374-49f4-a16d-b56a82e20e4d" width="500" height="300"/>
+
 
 ```sql
 delimiter $$
