@@ -1,4 +1,9 @@
 INSERT INTO song (name, genre, album_id, length) VALUES
+('toxic till the end','K-POP', 182, 207),
+('strategy','K-POP', 187, 196),
+('Hot Mess','K-POP', 184, 181),
+('Cosmic','K-POP', 185, 192),
+('BET ON ME','K-POP', 186, 200),
 ('O.O', 'K-POP', 150, 173),
 ('DICE', 'K-POP', 151, 166),
 ('Love Me Like This', 'K-POP', 152, 189),

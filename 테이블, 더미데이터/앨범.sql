@@ -1,4 +1,9 @@
 INSERT INTO album(name, member_id, rel_date) VALUES
+('rosie', 563, '2024-12-07'),
+('STRATEGY', 397, '2024-12-11'),
+('Hot Mess', 430, '2024-12-03'),
+('Cosmic', 546, '2024-12-22'),
+('KILL MY DOUBT', 481, '2024-12-30'),
 ('2009, Year Of Us', 371, '2010-11-01'),
 ('누난 너무 예뻐 (Replay)', 371, '2008-05-25'),
 ('Odd - The 4th Album', 371, '2015-05-18'),
@@ -180,3 +185,6 @@ INSERT INTO album(name, member_id, rel_date) VALUES
 ('FORM', 422, '2022-06-18 00:00:00'),
 ('연가', 467, '2020-11-11 00:00:00'),
 ('IM HERO', 475, '2023-05-09 00:00:00');
+
+
+
