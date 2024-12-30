@@ -1921,6 +1921,26 @@ delimiter ;
 
 &nbsp;
 ### 차트🥇
+<details>
+<summary>Song_In_Chart 테이블 데이터 삭제 스케쥴러</summary>
+<div markdown="1">
+	
+```SQL
+DELIMITER $$
+
+CREATE EVENT delete_Song_In_Chart_data_at_midnight
+ON SCHEDULE EVERY 1 DAY 
+STARTS CURRENT_DATE
+DO
+BEGIN
+	TRUNCATE TABLE Song_In_Chart;
+END $$
+
+DELIMITER ;
+```
+
+</div>
+</details>
 
 <details>
 <summary>TOP100 차트 스케쥴러</summary>
