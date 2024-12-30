@@ -11,12 +11,10 @@ ON SCHEDULE EVERY 1 DAY 												-- 이벤트가 매일 반복되도록 설�
 STARTS CURRENT_DATE
 DO
 BEGIN
-    DELETE FROM table_name;
-    -- TRUNCATE FROM streaming_count_by_member;
+    TRUNCATE TABLE streaming_count_by_member;
 END$$
 
 DELIMITER ;
 
 -- 이벤트 확인
 SHOW EVENTS;
-
