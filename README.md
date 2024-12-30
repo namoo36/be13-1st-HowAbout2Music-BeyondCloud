@@ -1927,7 +1927,7 @@ delimiter ;
 <div markdown="1">
 
 ```SQL
-    DELIMITER $$
+DELIMITER $$
 CREATE or replace EVENT updateTop100chart
 ON SCHEDULE EVERY 1 DAY 												-- 이벤트가 매일 반복되도록 설정
 STARTS CURRENT_DATE
@@ -1965,10 +1965,10 @@ DELIMITER ;
 <img src="https://github.com/user-attachments/assets/2139c504-9d89-4335-ab1d-428cb756e62f" width="500" height="300"/>
 
 ```SQL
-    SELECT RANK() over(order by ifnull(tbl1.streaming_cnt,0) DESC ) AS '순위',
-		 s.name,
-		 m.nickname AS '가수명',
-		 ifnull(tbl1.streaming_cnt,0) AS 재생횟수
+SELECT RANK() over(order by ifnull(tbl1.streaming_cnt,0) DESC ) AS '순위',
+	s.name,
+	m.nickname AS '가수명',
+	ifnull(tbl1.streaming_cnt,0) AS 재생횟수
 FROM (
 	SELECT song_id, IFNULL(COUNT(*),0) AS `streaming_cnt`
 	FROM Streaming_count_by_member
