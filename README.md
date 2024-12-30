@@ -2457,6 +2457,6 @@ DELIMITER ;
 <img src="https://github.com/user-attachments/assets/6d8b4eae-4fdd-4b98-9dac-f8b68f710ed0" width="1200" height="400"/>
 
 
-<a href = "https://docs.google.com/spreadsheets/d/1W9UvT3saeHNncIon_eQ_KMhMTmRgS9Ns/edit?gid=1009020989#gid=1009020989">## 테이블 정의서📄
+<a href = "https://docs.google.com/spreadsheets/d/1W9UvT3saeHNncIon_eQ_KMhMTmRgS9Ns/edit?gid=1009020989#gid=1009020989">테이블 정의서📄
 --------------
 
