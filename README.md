@@ -1,4 +1,12 @@
 
+&nbsp;
+--------
+## ERD🎤
+
+![image](https://github.com/user-attachments/assets/962765b5-ca03-499a-a027-9a8545ce4a68)
+
+
+
 
 ## SCHEMA🖥️
 
