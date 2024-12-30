@@ -3,7 +3,8 @@
 DELIMITER $$
 CREATE OR REPLACE PROCEDURE playlist_public_r()
 BEGIN
-    SELECT *
+    SELECT `name`,
+	 			reg_date
     FROM playlist 
     WHERE isPublic = 1;
 
@@ -15,73 +16,54 @@ CALL playlist_public_r();
 
 -- 2)복사
 DELIMITER $$
-CREATE OR REPLACE PROCEDURE playlist_copy(
-    IN mem_id BIGINT(20)
-)
-BEGIN
-    INSERT INTO playlist (name, isPublic, member_id)
-        SELECT name, isPublic, mem_id
-        FROM playlist 
-        WHERE isPublic = 1
-        LIMIT 1;
-
-    SELECT * 
-    FROM playlist
-    WHERE member_id = mem_id;
-END $$
-DELIMITER ;
-
-CALL playlist_copy(450);
-
-
--- call 하면 mem_id 까지 끌어와서 수정해 본거
-
-DELIMITER $$
 
 CREATE OR REPLACE PROCEDURE playlist_copy(
-    IN original_mem_id BIGINT(20),  -- 원본 플레이리스트의 사용자 ID
-    IN copy_mem_id BIGINT(20)       -- 복사할 플레이리스트를 받을 사용자 ID
+	    IN original_mem_id BIGINT(20),  -- 원본 플레이리스트의 사용자 ID
+	    IN pl_name VARCHAR(50),        -- 원본 플레이리스트의 제목
+	    IN copy_mem_id BIGINT(20)      -- 복사할 플레이리스트를 받을 사용자 ID
 )
 BEGIN
+    -- 새로 생성된 플레이리스트 ID 담을 변수 선언
+    DECLARE new_playlist_id BIGINT;
 
-    INSERT INTO playlist (name, isPublic, member_id)
-        SELECT name, isPublic, copy_mem_id 
-        FROM playlist 
-        WHERE isPublic = 1
-        AND member_id = original_mem_id 
-        LIMIT 1; 
+    -- playlist 테이블 복사
+    INSERT INTO playlist(`name`, isPublic, member_id)
+        SELECT `name`, 
+            isPublic, 
+            copy_mem_id 
+        FROM playlist
+        WHERE member_id = original_mem_id 
+			AND `name` = pl_name;
 
-    SELECT * 
-    FROM playlist
-    WHERE member_id = copy_mem_id; 
+    -- 새로 생성된 플레이리스트 ID 할당
+    SET new_playlist_id = (SELECT playlist_ID 
+                           FROM playlist
+                           WHERE member_id = copy_mem_id 
+									AND `name` = pl_name);
+        INSERT INTO song_in_playlist (playlist_id, song_id)
+        SELECT new_playlist_id,
+               song_id
+        FROM song_in_playlist i
+        INNER JOIN playlist p
+        ON i.playList_id = p.playList_id
+        WHERE member_id = original_mem_id
+        AND `name` = pl_name;
+
+    SELECT 
+        p.`name` AS playlist_name,
+        s.`name` AS song_name,
+        s.genre,
+        s.length
+    FROM playlist p
+   INNER JOIN song_in_playlist i
+   ON p.playList_id = i.playList_id
+   INNER JOIN song s
+   ON s.song_id = i.song_id
+    WHERE p.`name` = pl_name
+        AND p.member_id = copy_mem_id;
+
 END $$
 
 DELIMITER ;
 
-CALL playlist_copy(450, 526);
-
-
--- title (name) 으로 검색해서 복사
-DELIMITER $$
-
-CREATE OR REPLACE PROCEDURE playlist_copy_by_title(
-    IN copy_mem_id BIGINT(20),      -- 복사할 플레이리스트를 받을 사용자 ID
-    IN playlist_name VARCHAR(50)    -- 복사할 플레이리스트의 타이틀 (이름)
-)
-BEGIN
-
-    INSERT INTO playlist (name, isPublic, member_id)
-        SELECT name, isPublic, copy_mem_id  
-        FROM playlist 
-        WHERE isPublic = 1 
-        AND name = playlist_name  
-        LIMIT 1; 
-
-    SELECT * 
-    FROM playlist
-    WHERE member_id = copy_mem_id;
-END $$
-
-DELIMITER ;
-
-CALL playlist_copy_by_title(526, 'cafe');
+CALL playlist_copy(450, 'cafe', 526);
