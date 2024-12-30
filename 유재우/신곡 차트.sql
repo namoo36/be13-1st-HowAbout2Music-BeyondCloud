@@ -1,4 +1,4 @@
--- FIXME: 설명 바꿔라 chart_id와 song_id들을 이용해서 song_in_chart에 INSERT 
+-- 이번 달에 나온 신곡의 차트를 생성 및 조회
 DELIMITER $$
 
 CREATE OR REPLACE PROCEDURE Insert_release_in_chart()
@@ -28,9 +28,32 @@ BEGIN
               WHERE sic.chart_id = output_chart_id 
                 AND sic.song_id = s.song_id
           ) -- 중복 song_id 방지 조건
-    ORDER BY s.Streaming_cnt DESC										-- 스트리밍 횟수 내림차순 정렬
+    ORDER BY a.rel_date DESC										-- 스트리밍 횟수 내림차순 정렬
 	 LIMIT 100;
 END $$
+
+DELIMITER ;
+
+-- 이번 달에 발매된 신곡을 날짜 기준으로 조회하는 기능
+DELIMITER $$
+
+CREATE OR REPLACE PROCEDURE Get_Release_Song()
+BEGIN
+	SELECT s.`name` AS '곡 제목',
+		m.nickname AS '가수',
+		s.genre AS '장르',
+		s.album_id AS '앨범',
+		s.Streaming_cnt AS '재생 횟수',
+		s.`length` AS '곡 길이',
+		a.rel_date AS '발매일'
+	FROM Song_in_Chart sic
+	RIGHT OUTER JOIN Song s ON sic.song_id = s.song_id
+	LEFT OUTER JOIN Chart c ON sic.chart_id = c.chart_id
+	LEFT OUTER JOIN album a ON a.album_id = s.album_id
+	LEFT OUTER JOIN member m ON m.member_id = a.member_id
+	WHERE c.`name` LIKE '신곡'
+	ORDER BY a.rel_date DESC;
+END$$
 
 DELIMITER ;
 
@@ -38,4 +61,4 @@ DELIMITER ;
 -- CALL Insert_release_in_chart();
 
 -- 신곡 차트 조회
--- CALL Get_Chart('신곡');
+-- CALL Get_Release_Song();
