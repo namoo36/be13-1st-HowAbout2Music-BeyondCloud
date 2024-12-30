@@ -4,10 +4,11 @@ INSERT INTO Chart (`name`) VALUES
 ;
 
 -- 장르별 차트 추가
-INSERT INTO chart (`name`)
-VALUES 
+INSERT INTO chart (`name`) VALUES 
     ('인디'), ('랩'), ('K-POP'), ('발라드'), ('트로트')
 ;
+
+INSERT INTO chart (`name`) VALUES ('신곡');
 
 -- 하루가 지나면 실행되는 테이블 삭제 프로시저
 DELIMITER $$
@@ -52,8 +53,8 @@ BEGIN
 END $$
 
 DELIMITER ;
--- CALL Insert_All_In_Chart(94, 93, 92);
--- CALL Get_Chart('2020`s');
+-- CALL Insert_All_In_Chart(1, 2, 3);
+-- CALL Get_Chart('2000`s');
 
 -- 장르 별 노래를 차트에 삽입
 DELIMITER $$
@@ -103,7 +104,8 @@ BEGIN
 		s.genre AS '장르',
 		s.album_id AS '앨범',
 		s.Streaming_cnt AS '재생 횟수',
-		s.`length` AS '곡 길이'
+		s.`length` AS '곡 길이',
+		a.rel_date AS '발매일'
 	FROM Song_in_Chart sic
 	RIGHT OUTER JOIN Song s ON sic.song_id = s.song_id
 	LEFT OUTER JOIN Chart c ON sic.chart_id = c.chart_id
