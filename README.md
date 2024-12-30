@@ -2458,7 +2458,7 @@ DELIMITER ;
 
 
 <a href = "https://docs.google.com/spreadsheets/d/1W9UvT3saeHNncIon_eQ_KMhMTmRgS9Ns/edit?gid=1009020989#gid=1009020989">테이블 정의서📄
-<br>
+<hr>
 <a href = "https://docs.google.com/spreadsheets/d/1X7mFRJjBqexCS6Kp6kB8IPsrXaOrfqx7H7f_YaK2ZjM/edit?gid=0#gid=0">요구사항 정의서📄
 --------------
 
