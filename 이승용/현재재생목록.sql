@@ -168,7 +168,7 @@ BEGIN
 	) THEN
 		INSERT INTO song_in_nowplaylist(song_id, nowplayList_id) VALUES (s_id, now_ply_id);
 	ELSE
-		SELECT '이미 현재 재생 목록에 존재하는 노래입니다.';
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '이미 현재 재생 목록에 존재하는 노래입니다.';
 	END IF;
 	
 END $$
@@ -196,14 +196,14 @@ BEGIN
 	
 	-- 유저가 현재 재생 목록을 가지고 있지 않은 경우
 	IF ISNULL(now_ply_id)THEN 
-		SELECT '현재 재생 목록이 존재하지 않습니다.';
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '현재 재생 목록이 존재하지 않습니다.';
 	ELSE 
 		-- 만약 현재 재생 목록에 해당 노래가 존재하지 않는 경우
 		IF NOT EXISTS(
 			SELECT *
 			FROM song_in_nowplaylist
 			WHERE nowPlayList_id = now_ply_id AND song_id = s_id
-		) THEN SELECT '현재 재생 목록에 해당 노래가 존재하지 않습니다.';
+		) THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '현재 재생 목록에 해당 노래가 존재하지 않습니다.';
 		ELSE 
 		  DELETE FROM song_in_nowplaylist WHERE song_id = s_id AND nowPlayList_id = now_ply_id;
 		END IF;

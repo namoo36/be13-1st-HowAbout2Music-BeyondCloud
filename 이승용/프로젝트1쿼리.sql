@@ -12,7 +12,8 @@ SET GLOBAL event_scheduler = ON;
 --  유저 아이디/ 플리 이름/공유유무만 받아서 새롭게 생성 
 --  공유 유무에 NULL값(아무런 값을 받지 않는다고 가정)을 받을 경우 default 값으로 설정
 --  최근 수정일은 디폴트 값(현재 시간)으로 정함.
---  이미 있는 회원이 아니면 외래키 이슈로 오류 발생함
+--  이미 있는 플리 이름이면 오류 뜨게
+
 DELIMITER $$
 CREATE OR REPLACE PROCEDURE make_playlist(
 	IN uid BIGINT(20), 
@@ -21,9 +22,21 @@ CREATE OR REPLACE PROCEDURE make_playlist(
 )
 
 BEGIN 
-	SET is_shared = IFNULL(is_shared, 0);
-	INSERT INTO playlist(`name`, member_id, isPublic) 
-	VALUES(play_list_name, uid, is_shared);
+
+DECLARE p_name VARCHAR(20);
+
+	SELECT NAME INTO p_name
+	FROM playlist
+	WHERE member_id = uid AND NAME = play_list_name;
+	
+	IF p_name IS NOT NULL
+	THEN 
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '이미 있는 이름입니다.';
+	ELSE
+		SET is_shared = IFNULL(is_shared, 0);
+		INSERT INTO playlist(`name`, member_id, isPublic) 
+		VALUES(play_list_name, uid, is_shared);
+	END IF;
 END $$
 DELIMITER ;
 
@@ -50,7 +63,7 @@ BEGIN
 		INSERT INTO song_in_playlist(playList_id, song_id) 
 		VALUES(ply_id, song_id);
 	ELSE 
-		SELECT '이미 존재하는 곡입니다.';
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT =  '이미 존재하는 곡입니다.';
 	END IF;
 END $$
 DELIMITER ;
@@ -88,7 +101,7 @@ BEGIN
 			INSERT INTO song(`name`, genre, album_id, LENGTH) 
 			VALUES(s_name, s_genre, new_album_id, s_time);
 	ELSE 
-			SELECT '일반 유저는 노래를 추가할 수 없습니다.';
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT =  '일반 유저는 노래를 추가할 수 없습니다.';
 	END IF;
 END $$
 DELIMITER ;
@@ -104,7 +117,7 @@ DELIMITER ;
 DELIMITER $$
 CREATE OR REPLACE PROCEDURE insert_songs_only_artist(
 	IN uid BIGINT (20),
-	IN s_name TEXT,   -- > 노래 이름 받기(,  기준으로 받기)
+	IN s_name TEXT,   -- > 노래 이름 받기(,  기준으로 받기) -> (435, 3235, 34254,2353245)
 	IN s_genre VARCHAR(10),
 	IN a_name VARCHAR (50),
 	IN s_time TEXT -- > 노래 시간 받기(, 기준으로 시간 맞춰서)
@@ -144,7 +157,7 @@ BEGIN
 			SET song_count = song_count + 1;
 		END WHILE;
 	ELSE 
-			SELECT '일반 유저는 노래를 추가할 수 없습니다.';
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT =  '일반 유저는 노래를 추가할 수 없습니다.';
 			-- 오류 처리 구문 
 			-- SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '일반 유저는 노래를 추가할 수 없습니다.';
 	END IF;
@@ -186,19 +199,19 @@ BEGIN
 		
 		
 		IF ISNULL(song_u_id) THEN 
-			SELECT '해당 노래가 존재하지 않습니다.';
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT =  '해당 노래가 존재하지 않습니다.';
 			
 		ELSE 
 			-- 노래가 존재할 경우 해당 노래를 삭제
 			DELETE FROM song
 			WHERE song_id = song_u_id;
 			
-			SELECT '노래가 제거되었습니다.';
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT =  '노래가 제거되었습니다.';
 			
 		END IF;
 
 	ELSE 
-		SELECT '일반 유저는 노래를 삭제할 수 없습니다.';
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT =  '일반 유저는 노래를 삭제할 수 없습니다.';
 
 	END IF;
 END $$
@@ -232,7 +245,7 @@ BEGIN
 		JOIN album AS a ON s.album_id = a.album_id
 		WHERE a.member_id = uid AND s.name = old_song_name;
 		
-		IF ISNULL(song_u_id) THEN SELECT '해당 노래가 존재하지 않거나 수정할 수 없습니다.';			
+		IF ISNULL(song_u_id) THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT =  '해당 노래가 존재하지 않거나 수정할 수 없습니다.';			
 		ELSE 
 			UPDATE song
 			SET name = edit_song_name, genre = edit_song_genre, LENGTH = song_time
@@ -240,7 +253,7 @@ BEGIN
 		END IF;
 
 	ELSE 
-		SELECT '일반 유저는 노래를 삭제할 수 없습니다.';
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT =  '일반 유저는 노래를 수정할 수 없습니다.';
 
 	END IF;
 END $$
@@ -281,7 +294,7 @@ BEGIN
 	THEN
 		INSERT INTO like_cnt(member_id, album_id) VALUES (uid, a_id);
 	ELSE
-		SELECT '이미 좋아요를 누른 곡입니다.';
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT =  '이미 좋아요를 누른 곡입니다.';
 	END IF;
 END $$
 DELIMITER ;
@@ -302,7 +315,7 @@ BEGIN
 	THEN
 		DELETE FROM like_cnt WHERE member_id = uid;
 	ELSE
-		SELECT '좋아료를 누른 적 없습니다.';
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT =  '좋아요를 누른 적 없습니다.';
 	END IF;
 END $$
 DELIMITER ;
@@ -346,7 +359,7 @@ BEGIN
 			s.genre AS `장르`,
 			s.Streaming_cnt AS `재생횟수`,
 			a.`name` AS `앨범명`,
-			m.`name` AS '가수명'
+			m.`nickname` AS '가수명'
 	FROM song AS s
 	JOIN album AS a ON s.album_id = a.album_id
 	JOIN member AS m ON a.member_id = m.member_id
@@ -384,7 +397,7 @@ DELIMITER ;
 -- 좋아요가 10만개보다 적으면 명반  취소(0) 
 DELIMITER $$
 CREATE EVENT IF NOT EXISTS enroll_masterpiece
-ON SCHEDULE EVERY 1 YEAR DO 
+ON SCHEDULE EVERY 1 YEAR STARTS '2024-12-31 10:00:00' DO 
 BEGIN
 	UPDATE album
 	SET FIELD = 1
@@ -408,6 +421,8 @@ DELIMITER ;
 -- 앨범 아이디, 플레이리스트 아이디를 입력 받아서 추가하기
 -- 플레이리스트는 전체 다 존재한다고 가정
 
+-- 인덱싱 사용 시나리오까지 ->
+
 DELIMITER $$
 CREATE OR REPLACE PROCEDURE album_in_ply(
 	IN a_id BIGINT(20),
@@ -421,3 +436,12 @@ BEGIN
 	
 END $$
 DELIMITER ;
+
+
+CREATE INDEX idx_song_id ON song(song_id);
+EXPLAIN (
+	SELECT *
+	FROM song
+	WHERE song_id = 118
+);
+
