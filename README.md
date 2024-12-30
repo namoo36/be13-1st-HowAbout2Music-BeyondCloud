@@ -1,4 +1,3 @@
-# be13-1st-2team
 
 
 
@@ -176,7 +175,7 @@ delimiter ;
 <summary>회원 탈퇴</summary>
 <div markdown="1">
 
-
+<img src="https://github.com/user-attachments/assets/cf38dce8-9752-4ab8-8e25-28a3d6b5e915" width="500" height="300"/>
 <img src="https://github.com/user-attachments/assets/81c13263-1374-49f4-a16d-b56a82e20e4d" width="500" height="300"/>
 
 
@@ -213,6 +212,9 @@ delimiter ;
 <summary>플레이 리스트 생성</summary>
 <div markdown="1">
 
+<img src="https://github.com/user-attachments/assets/afe79709-9c4d-4386-860b-06884eea5290" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/3c377336-7bfb-430c-807a-c526516adf9e" width="500" height="300"/>
+
 ```SQL
     DELIMITER $$
     CREATE OR REPLACE PROCEDURE make_playlist(
@@ -248,6 +250,10 @@ delimiter ;
 <summary>플레이 리스트에 노래 담기</summary>
 <div markdown="1">
 
+
+<img src="https://github.com/user-attachments/assets/89631897-b17e-448d-b380-41c2c1993b04" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/f7107aee-e413-489f-8f27-0fef305120b9" width="500" height="300"/>
+
 ```SQL
     DELIMITER $$
     CREATE OR REPLACE PROCEDURE add_song_to_playlist(
@@ -279,6 +285,10 @@ delimiter ;
 <details>
 <summary>아티스트 승인 유저 노래 등록 가능(한 곡)</summary>
 <div markdown="1">
+
+<img src="https://github.com/user-attachments/assets/4014fbc6-0930-40ea-b7f1-cbc375216468" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/9c97f38e-1d22-438d-95ed-8ee2b00a97fa" width="500" height="300"/>
+
 
 ```SQL
     DELIMITER $$
@@ -321,6 +331,9 @@ delimiter ;
 <details>
 <summary>아티스트 승인 유저 노래 등록 가능(여러 곡)</summary>
 <div markdown="1">
+
+<img src="https://github.com/user-attachments/assets/077481c8-35a2-45e2-82f8-766567b1b864" width="500" height="300"/>
+
 
 ```SQL
     DELIMITER $$
@@ -382,6 +395,11 @@ delimiter ;
 <summary>내가 올린 노래 삭제 가능</summary>
 <div markdown="1">
 
+<img src="https://github.com/user-attachments/assets/274a6292-6d2b-4965-baac-4857afc0b89d" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/9704cb59-3a43-406e-b762-6c363502ec35" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/ae4aa878-b5f4-4dc7-9bcf-d884be42947f" width="500" height="300"/>
+
+
 ```SQL
     DELIMITER $$
     CREATE OR REPLACE PROCEDURE my_song_del(
@@ -433,6 +451,11 @@ delimiter ;
 <details>
 <summary>내가 올린 노래 수정 가능</summary>
 <div markdown="1">
+
+<img src="https://github.com/user-attachments/assets/381910cc-ed45-4825-9e51-d7e226c7f626" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/45622e38-cc60-4e36-b1ea-3be52f487ae1" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/471173cf-d404-4a83-8fec-c650d6486cc8" width="500" height="300"/>
+
 
 ```SQL
     DELIMITER $$
@@ -487,6 +510,9 @@ delimiter ;
 <summary>노래 댓글 기능</summary>
 <div markdown="1">
 
+<img src="https://github.com/user-attachments/assets/ce1f5014-c317-446d-8e20-79f50f66aa9d" width="500" height="300"/>
+
+
 ```SQL
     DELIMITER $$
     CREATE OR REPLACE PROCEDURE user_comment(
@@ -508,6 +534,9 @@ delimiter ;
 <summary>노래 댓글 삭제 기능</summary>
 <div markdown="1">
 
+<img src="https://github.com/user-attachments/assets/ea4acdf3-fc76-412f-aea6-1fa459ee92c3" width="500" height="300"/>
+
+
 ```SQL
     DELIMITER $$
     CREATE OR REPLACE PROCEDURE user_comment_del(
@@ -528,6 +557,11 @@ delimiter ;
 <details>
 <summary>현재 재생 목록 추가</summary>
 <div markdown="1">
+
+<img src="https://github.com/user-attachments/assets/5b2ceb33-425e-48e5-8548-76d0513ece15" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/2e055fe6-c455-41fe-9fd4-53666fec978a" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/a2f2bb89-c860-49da-8167-7cf6bcb33993" width="500" height="300"/>
+
 
 ```sql
     DELIMITER $$
@@ -603,6 +637,8 @@ delimiter ;
 <summary>현재 재생 목록에 노래 추가</summary>
 <div markdown="1">
 
+<img src="https://github.com/user-attachments/assets/accfd6b3-8593-4a48-8b3b-acfc9a31fca5" width="500" height="300"/>
+
 ```sql
     DELIMITER $$
     CREATE OR REPLACE PROCEDURE add_cur_song_ply(
@@ -652,6 +688,10 @@ delimiter ;
 <summary>현재 재생 목록에서 노래 삭제</summary>
 <div markdown="1">
 
+<img src="https://github.com/user-attachments/assets/105730ee-cb88-4baa-95c0-eb3cff03b1b1" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/5739c839-6bf2-4add-b7a7-ebc3058d156b" width="500" height="300"/>
+
+
 ```sql
     DELIMITER $$
     CREATE OR REPLACE PROCEDURE del_cur_song_ply(
@@ -694,6 +734,9 @@ delimiter ;
 <summary>재생 중인 노래 재생 횟수 증가</summary>
 <div markdown="1">
 
+<img src="https://github.com/user-attachments/assets/25cebac9-4fde-499b-ada4-f2fb232a36bf" width="500" height="300"/>
+
+
 ```sql
     DELIMITER $$
     CREATE OR REPLACE TRIGGER song_streaming_cnt_increase
@@ -714,6 +757,10 @@ delimiter ;
 <details>
 <summary>다음 재생 노래</summary>
 <div markdown="1">
+
+<img src="https://github.com/user-attachments/assets/adfd4595-2982-4c98-883e-b43ebff929fe" width="500" height="300"/>
+
+
 
 ```sql
     DELIMITER $$
@@ -755,6 +802,8 @@ delimiter ;
 <details>
 <summary>노래 제목 검색</summary>
 <div markdown="1">
+
+
 
 ```SQL
     DELIMITER $$
@@ -841,6 +890,8 @@ delimiter ;
 <details>
 <summary>앨범 좋아요 누르기 기능</summary>
 <div markdown="1">
+
+
 
 ```SQL
     DELIMITER $$
