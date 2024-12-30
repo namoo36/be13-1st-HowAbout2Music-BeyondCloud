@@ -3,6 +3,19 @@ SELECT @@event_scheduler;
 -- 이벤트 스케줄러 활성화
 SET GLOBAL event_scheduler = ON;
 
+-- 하루가 지나면 실행되는 테이블 삭제 프로시저
+DELIMITER $$
+
+CREATE EVENT delete_Song_In_Chart_data_at_midnight
+ON SCHEDULE EVERY 1 DAY 
+STARTS CURRENT_DATE
+DO
+BEGIN
+	TRUNCATE TABLE Song_In_Chart;
+END $$
+
+DELIMITER ;
+
 -- 하루가 지나면 streaming_count_by_member에 있는 모든 데이터가 사라진다
 DELIMITER $$
 

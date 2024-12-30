@@ -20,6 +20,9 @@ END $$
 
 DELIMITER ;
 
+-- DB가 처음 시작할 때 한번만 실행
+CALL Refresh_Chart();
+
 -- 연대 별 모든 차트를 Song_In_Chart 테이블에 추가
 DELIMITER $$
 
@@ -29,9 +32,6 @@ CREATE OR REPLACE PROCEDURE Insert_All_In_Chart(
     IN p_2020s_Chart_Id BIGINT
 )
 BEGIN
-    -- 동일한 chart_id를 가진 기존 데이터 삭제
-    CALL Refresh_Chart();
-
     -- song_in_chart에 데이터 삽입
     INSERT INTO Song_In_Chart (chart_id, song_id)
     SELECT 
