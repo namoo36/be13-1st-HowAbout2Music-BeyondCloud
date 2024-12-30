@@ -2008,7 +2008,7 @@ JOIN Member AS m ON m.member_id = a.member_id;
 <summary>연대별 TOP100 차트 조회</summary>
 <div markdown="1">
 	
-<img src="https://github.com/user-attachments/assets/3819fcc3-7cfb-4997-a55c-b11ec45e1aac" width="800" height="300"/>
+<img src="https://github.com/user-attachments/assets/8a6c7007-a18a-47bb-b05c-d36eea2dd59d" width="800" height="300"/>
 
 ```SQL
 -- 연대 별 모든 차트를 Song_In_Chart 테이블에 추가
@@ -2050,7 +2050,7 @@ DELIMITER ;
 <summary>장르별 TOP100 차트 조회</summary>
 <div markdown="1">
 	
-<img src="https://github.com/user-attachments/assets/fcbed70c-25be-4bb0-9dc3-491a87d564fd" width="800" height="300"/>
+<img src="https://github.com/user-attachments/assets/71d43c34-51dd-43e0-aa93-7f51b5c29d59" width="800" height="300"/>
 
 ```SQL
 -- 장르 별 노래를 차트에 삽입
@@ -2093,7 +2093,7 @@ DELIMITER ;
 <summary>신곡 차트 조회</summary>
 <div markdown="1">
 	
-<img src="https://github.com/user-attachments/assets/6825540e-fb12-4bf7-b31e-b7d5a1750525" width="800" height="300"/>
+<img src="https://github.com/user-attachments/assets/2d609a32-f04c-4705-8c1b-58554b37c25f" width="800" height="300"/>
 
 ```SQL
 DELIMITER $$
