@@ -1920,7 +1920,7 @@ delimiter ;
 </details>
 
 &nbsp;
-### 차트🧑‍🎤
+### 차트🥇
 
 <details>
 <summary>TOP100 차트 스케쥴러</summary>
