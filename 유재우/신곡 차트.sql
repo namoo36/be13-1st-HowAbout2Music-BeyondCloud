@@ -1,6 +1,4 @@
--- chart_id와 song_id들을 이용해서 song_in_chart에 INSERT
--- 차트안에 노래가 있으면 지우고 다시 삽입 구현해야 함
--- call Insert_years_in_chart('2024');
+-- FIXME: 설명 바꿔라 chart_id와 song_id들을 이용해서 song_in_chart에 INSERT 
 DELIMITER $$
 
 CREATE OR REPLACE PROCEDURE Insert_release_in_chart()
@@ -24,6 +22,12 @@ BEGIN
     INNER JOIN Album a ON s.album_id = a.album_id
     WHERE YEAR(a.rel_date) = YEAR(CURDATE())
   			 AND MONTH(a.rel_date) = MONTH(CURDATE())
+  			 AND NOT EXISTS (
+              SELECT 1 
+              FROM Song_In_Chart sic 
+              WHERE sic.chart_id = output_chart_id 
+                AND sic.song_id = s.song_id
+          ) -- 중복 song_id 방지 조건
     ORDER BY s.Streaming_cnt DESC										-- 스트리밍 횟수 내림차순 정렬
 	 LIMIT 100;
 END $$
