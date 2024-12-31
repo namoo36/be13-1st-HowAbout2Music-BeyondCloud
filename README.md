@@ -1,7 +1,15 @@
 ![표지 pdf-1-4](https://github.com/user-attachments/assets/6c7ce186-c8a6-48b2-9b36-683053216532)
+## 팀원소개
 ![팀원소개 pdf-1-1](https://github.com/user-attachments/assets/17d98071-a3ec-4f98-ae38-3ce6aba0ab56)
+| [유재우](https://github.com/blooper20)| [차경태](https://github.com/ChaGyoungtae) | [이승용](https://github.com/namoo36)| [안상현](https://github.com/javaspringstudy)|[이희진](https://github.com/2HEEJIN)|
+|  -- | --- | --- | --- | --- |
+| <img src="https://github.com/user-attachments/assets/e50bf3b3-41c4-4f70-a3be-25d0ff053335" width="50" height="50"/> | <img src="https://github.com/user-attachments/assets/982d7907-29c1-4d77-9089-387f2b99e89e" width="50" height="50"/> | <img src="https://github.com/user-attachments/assets/5f3396e2-9e13-4553-a2c6-dba220585545" width="50" height="50"/> | <img src="https://github.com/user-attachments/assets/e156d68a-a307-4148-a2cf-cc7f2a2f44f2" width="50" height="50"/> | <img src="https://github.com/user-attachments/assets/7697120e-ced5-447a-9652-a85c9a88ac27" width="50" height="50"/> |
+| 팀장 | 팀원 | 팀원 | 팀원 | 팀원 |
 ## 프로젝트 소개
 ![프로젝트 소개 pdf-1-2](https://github.com/user-attachments/assets/1ad75f60-3c7e-4a17-98c9-63d3b1b2065a)
+
+
+
 
 **BeyondCloud**는 사용자들에게 다양한 음악을 즐길 수 있는 서비스를 제공하는 플랫폼입니다.
 
@@ -75,7 +83,7 @@
 
 
 
-## SCHEMA🖥️
+## SCHEMA DDL🖥️
 
 ### 1. 회원 등급
 	
@@ -257,6 +265,14 @@ CREATE TABLE IF NOT EXISTS `like_cnt` (
    FOREIGN KEY (`album_id`) REFERENCES `Album` (`album_id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+```
+
+### 인덱스
+```sql
+CREATE INDEX idx_song_id ON song(song_id);
+CREATE INDEX idx_member_id ON member(member_id);
+CREATE INDEX idx_album_id ON album(rel_date);
+CREATE INDEX idx_song_chart ON song_in_chart(song_id, chart_id);
 ```
 
 
@@ -1251,9 +1267,331 @@ delimiter ;
     END $$
     DELIMITER ;
 ```
+</div>
+</details>
+
+
+<details>
+<summary>플레이 리스트 수정</summary>
+<div markdown="1">
+
+<img src="https://github.com/user-attachments/assets/cb6c6feb-a6dd-449d-8d9a-617f5a450241" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/42fed661-835b-4249-b762-103cf7550ce3" width="500" height="300"/>
+
+```sql
+DELIMITER $$
+
+CREATE OR REPLACE PROCEDURE playlist_u(
+    IN plName VARCHAR(50),
+    IN change_name VARCHAR(50),
+    IN Public TINYINT,
+    IN mem_id BIGINT(20)
+)
+BEGIN
+DECLARE c_name VARCHAR(50);
+
+	 SELECT NAME INTO c_name
+	 FROM playlist
+	 WHERE member_id = mem_id AND NAME = plName;
+
+	 -- 1, 0 이외의 값이 등록되면 0으로 기본 고정
+    IF Public NOT IN (0, 1) THEN
+        SET Public = 0;
+    END IF;
+    
+    IF c_name IS NULL THEN
+	    UPDATE playlist
+	    SET name = change_name, isPublic = Public
+	    WHERE name = plName AND member_id = mem_id;
+	 ELSE 
+	 	 SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '이미 존재하는 이름입니다.';
+	 END IF ;
+
+    SELECT *
+    FROM playlist
+    WHERE name = change_name AND member_id = mem_id;
+
+END $$
+DELIMITER ;
+```
+ 
+</div>
+</details>
+
+
+<details>
+<summary>플레이 리스트 삭제</summary>
+<div markdown="1">
+
+<img src="https://github.com/user-attachments/assets/db63dc5f-66a6-4b99-943a-f1ab88eaa11b" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/09c98b1e-f876-4fc0-a2ff-cafd9e86cd31" width="500" height="300"/>
+
+
+```sql
+DELIMITER $$
+
+CREATE or REPLACE PROCEDURE playlist_d(
+    IN plName VARCHAR(50), 
+    IN mem_id BIGINT(20)
+)
+BEGIN
+
+    DECLARE deleted_count INT;
+
+    -- 먼저, 플레이리스트에 속한 노래들 삭제
+    DELETE FROM song_in_playlist
+    WHERE playList_id IN (
+        SELECT playList_id 
+        FROM playlist 
+        WHERE name = plName 
+          AND member_id = mem_id
+    );
+
+    -- 플레이리스트 삭제
+    DELETE FROM playlist
+    WHERE name = plName
+      AND member_id = mem_id;
+
+    -- 삭제된 행 수 확인
+    SET deleted_count = ROW_COUNT();
+
+    IF deleted_count > 0 THEN
+      	SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '플레이리스트가 삭제되었습니다.';
+    ELSE
+      	SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '해당 플레이리스트가 존재하지 않습니다.' ;
+    END IF;
+
+END $$
+
+DELIMITER ;
+```
+
 
 </div>
 </details>
+
+
+
+<details>
+<summary>공개 플리 조회</summary>
+<div markdown="1">
+
+<img src="https://github.com/user-attachments/assets/34e12e51-3f85-48f5-adf5-a7a722c12b8d" width="500" height="300"/>
+
+```sql
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE playlist_public_r()
+BEGIN
+    SELECT `name`,
+	 			reg_date,
+	 			isPublic
+    FROM playlist 
+    WHERE isPublic = 1;
+
+END $$
+DELIMITER ;
+```
+</div>
+</details>
+
+<details>
+<summary>내 플리 제목 조회</summary>
+<div markdown="1">
+
+<img src="https://github.com/user-attachments/assets/68818906-f2c0-4617-b5fb-7d2c5e8f2d4f" width="500" height="300"/>
+
+```sql
+	DELIMITER $$
+	CREATE or REPLACE PROCEDURE playlist_title_r(
+	    IN mem_id BIGINT(20)
+	)
+	BEGIN
+	    SELECT name
+	    FROM playlist 
+	    WHERE member_id = mem_id;
+	END $$
+	DELIMITER ;
+```
+
+
+</div>
+</details>
+
+
+<details>
+<summary>내 플리 노래 조회</summary>
+<div markdown="1">
+	
+<img src="https://github.com/user-attachments/assets/da7c7f7b-920a-455e-9a87-69f2f0a484e2" width="500" height="300"/>
+
+```sql
+DELIMITER $$
+
+CREATE OR REPLACE PROCEDURE playlist_song_r(
+     IN pl_name VARCHAR(50),
+    IN mem_id BIGINT(20)
+)
+BEGIN
+    SELECT 
+        p.name AS playlist_name,
+        s.name AS song_name,
+        s.genre,
+        s.length
+    FROM playlist p
+   INNER JOIN song_in_playlist i
+   ON p.playList_id = i.playList_id
+   INNER JOIN song s
+   ON s.song_id = i.song_id
+    WHERE p.name = pl_name
+        AND p.member_id = mem_id;
+
+END $$
+
+DELIMITER ;
+
+```
+
+</div>
+</details>
+
+
+<details>
+<summary>플레이 리스트 복사</summary>
+<div markdown="1">
+
+<img src="https://github.com/user-attachments/assets/fe270670-384e-42e6-8adf-7c927489adc5" width="500" height="300"/>
+
+```sql
+	DELIMITER $$
+	
+	CREATE OR REPLACE PROCEDURE playlist_copy(
+		    IN original_mem_id BIGINT(20),  -- 원본 플레이리스트의 사용자 ID
+		    IN pl_name VARCHAR(50),        -- 원본 플레이리스트의 제목
+		    IN copy_mem_id BIGINT(20)      -- 복사할 플레이리스트를 받을 사용자 ID
+	)
+	BEGIN
+	    -- 새로 생성된 플레이리스트 ID 담을 변수 선언
+	    DECLARE new_playlist_id BIGINT;
+	
+	    -- playlist 테이블 복사
+	    INSERT INTO playlist(`name`, isPublic, member_id)
+	        SELECT `name`, 
+	            isPublic, 
+	            copy_mem_id 
+	        FROM playlist
+	        WHERE member_id = original_mem_id 
+				AND `name` = pl_name;
+	
+	    -- 새로 생성된 플레이리스트 ID 할당
+	    SET new_playlist_id = (SELECT playlist_ID 
+	                           FROM playlist
+	                           WHERE member_id = copy_mem_id 
+										AND `name` = pl_name);
+	        INSERT INTO song_in_playlist (playlist_id, song_id)
+	        SELECT new_playlist_id,
+	               song_id
+	        FROM song_in_playlist i
+	        INNER JOIN playlist p
+	        ON i.playList_id = p.playList_id
+	        WHERE member_id = original_mem_id
+	        AND `name` = pl_name;
+	
+	    SELECT 
+	        p.`name` AS playlist_name,
+	        s.`name` AS song_name,
+	        s.genre,
+	        s.length
+	    FROM playlist p
+	   INNER JOIN song_in_playlist i
+	   ON p.playList_id = i.playList_id
+	   INNER JOIN song s
+	   ON s.song_id = i.song_id
+	    WHERE p.`name` = pl_name
+	        AND p.member_id = copy_mem_id;
+	
+	END $$
+	
+	DELIMITER ;
+```
+
+</div>
+</details>
+
+
+<details>
+<summary>이 음악 어때? - 랜덤 플리 복사해오기</summary>
+<div markdown="1">
+
+<img src="https://github.com/user-attachments/assets/0b0cd39f-7ad0-4be6-827e-d3d1dbff321d" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/50a5b286-35e3-4add-aef7-c61a0404b536" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/8f68a565-9779-47bf-818c-776c6108fd08" width="500" height="300"/>
+
+
+```sql
+
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE playlist_rand(
+    IN mem_id BIGINT(20)
+)
+BEGIN
+    -- 랜덤으로 복사할 플레이 리스트 ID, 이름  담을 변수 선언
+    DECLARE copy_playlist_id BIGINT;
+    DECLARE copy_playlist_name VARCHAR(50);
+
+    -- 새로 생성된 플레이리스트 ID 담을 변수 선언
+   DECLARE new_playlist_id BIGINT;
+
+    -- 랜덤으로 복사할 플레이 리스트 ID, 이름 담을 변수에 데이터 할당
+   SELECT playlist_id, name
+   INTO copy_playlist_id, copy_playlist_name
+    FROM playlist
+    WHERE isPublic = 1
+    AND member_id != mem_id
+    AND name NOT IN (SELECT name FROM playlist WHERE member_id = mem_id)
+    ORDER BY RAND()
+    LIMIT 1;
+
+    -- playlist 테이블 Insert
+    INSERT INTO playlist (name, isPublic, member_id)
+        SELECT name, isPublic, mem_id
+        FROM playlist
+        WHERE playlist_id = copy_playlist_id;
+
+   -- 새로 생성된 플레이리스트 ID 담을 변수에 데이터 할당
+    SET new_playlist_id = (
+                SELECT playlist_id
+                FROM playlist
+                WHERE member_id = mem_id 
+                AND name = copy_playlist_name
+                );
+
+    -- song_in_playlist 테이블 Insert
+    INSERT INTO song_in_playlist (playlist_id, song_id)
+        SELECT new_playlist_id, song_id
+        FROM song_in_playlist s
+        WHERE playlist_id = copy_playlist_id;
+
+    SELECT 
+        p.name AS playlist_name,
+        s.name AS song_name,
+        s.genre,
+        s.length
+    FROM playlist p
+   INNER JOIN song_in_playlist i
+   ON p.playList_id = i.playList_id
+   INNER JOIN song s
+   ON s.song_id = i.song_id
+    WHERE p.playList_id = new_playlist_id;
+
+END $$
+DELIMITER ;
+
+```
+
+</div>
+</details>
+
+
 
 #### 2. 노래 등록/수정
 <details>
@@ -1737,34 +2075,34 @@ delimiter ;
 
 
 ```sql
-    DELIMITER $$
-    CREATE OR REPLACE PROCEDURE next_cur_song(
-    	IN u_id BIGINT(20),
-    	IN s_id BIGINT(20)
-    )
-    BEGIN
-    DECLARE n_ply_id BIGINT(20);
-    DECLARE c_reg_date DATETIME;
-    
-    	-- 입력으로 받은 회원 아이디로 현재 재생목록 아이디를 조회, n_ply_id에 저장
-    	SELECT nowPlayList_id INTO n_ply_id
-    	FROM nowplaylist
-    	WHERE member_id = u_id; 
-    	
-    	-- 조회한 플레이 리스트 아이디 및 노래 아이디로 reg_date 조회
-    	SELECT reg_date INTO c_reg_date
-    	FROM Song_in_nowplaylist
-    	WHERE nowPlayList_id = n_ply_id AND song_id = s_id;
-    	
-    	-- 날짜 순서대로 정렬되어 있는 노래들 중 제일 먼저 등록한 노래가 먼저 나오도록 
-    	SELECT song_id
-    	FROM Song_in_nowplaylist
-    	WHERE nowPlayList_id = n_ply_id AND reg_date < c_reg_date
-    	ORDER BY reg_date
-    	LIMIT 1;
-    	
-    END $$
-    DELIMITER ;
+	DELIMITER $$
+	
+	CREATE TRIGGER after_song_del_from_listening_song
+	AFTER DELETE ON Listening_song
+	FOR EACH ROW
+	BEGIN
+	    DECLARE n_ply_id BIGINT(20);
+	    DECLARE c_reg_date DATETIME;
+	    DECLARE next_song_id BIGINT(20);
+	
+	    -- 삭제된 노래에 대한 reg_date 조회
+	    SELECT reg_date INTO c_reg_date
+	    FROM song_in_nowplaylist
+	    WHERE nowPlayList_id = OLD.nowPlaylist_id AND song_id = OLD.Listening_song_id;
+	
+	    -- 삭제된 노래 이후의 노래들 중에서 가장 먼저 등록된 노래를 찾음
+	    SELECT song_id INTO next_song_id
+	    FROM Song_in_nowplaylist
+	    WHERE nowPlayList_id = n_ply_id AND reg_date > c_reg_date
+	    ORDER BY reg_date
+	    LIMIT 1;
+	
+	    -- 찾은 다음 노래를 Listening_song 테이블에 추가
+	    INSERT INTO Listening_song (song_id, nowPlayList_id) VALUES (next_song_id, n_ply_id);
+	END $$
+	
+	DELIMITER ;
+
 ```
 
 </div>
@@ -2202,6 +2540,12 @@ DELIMITER ;
 </div>
 </details>
 
+## WBS📅
+<img src="https://github.com/user-attachments/assets/6d8b4eae-4fdd-4b98-9dac-f8b68f710ed0" width="1200" height="400"/>
 
+--------------
+<a href = "https://docs.google.com/spreadsheets/d/1W9UvT3saeHNncIon_eQ_KMhMTmRgS9Ns/edit?gid=1009020989#gid=1009020989">테이블 정의서📄
+--------------
+<a href = "https://docs.google.com/spreadsheets/d/1X7mFRJjBqexCS6Kp6kB8IPsrXaOrfqx7H7f_YaK2ZjM/edit?gid=0#gid=0">요구사항 정의서📄
 --------------
 
