@@ -83,7 +83,7 @@
 
 
 
-## SCHEMA🖥️
+## SCHEMA DDL🖥️
 
 ### 1. 회원 등급
 	
@@ -265,6 +265,14 @@ CREATE TABLE IF NOT EXISTS `like_cnt` (
    FOREIGN KEY (`album_id`) REFERENCES `Album` (`album_id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+```
+
+### 인덱스
+```sql
+CREATE INDEX idx_song_id ON song(song_id);
+CREATE INDEX idx_member_id ON member(member_id);
+CREATE INDEX idx_album_id ON album(rel_date);
+CREATE INDEX idx_song_chart ON song_in_chart(song_id, chart_id);
 ```
 
 
