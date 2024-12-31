@@ -1,8 +1,15 @@
 ![표지 pdf-1-4](https://github.com/user-attachments/assets/6c7ce186-c8a6-48b2-9b36-683053216532)
 ## 팀원소개
 ![팀원소개 pdf-1-1](https://github.com/user-attachments/assets/17d98071-a3ec-4f98-ae38-3ce6aba0ab56)
+| [유재우](https://github.com/blooper20)| [차경태](https://github.com/ChaGyoungtae) | [이승용](https://github.com/namoo36)| [안상현](https://github.com/javaspringstudy)|[이희진](https://github.com/2HEEJIN)|
+|  -- | --- | --- | --- | --- |
+| <img src="https://github.com/user-attachments/assets/e50bf3b3-41c4-4f70-a3be-25d0ff053335" width="50" height="50"/> | <img src="https://github.com/user-attachments/assets/982d7907-29c1-4d77-9089-387f2b99e89e" width="50" height="50"/> | <img src="https://github.com/user-attachments/assets/5f3396e2-9e13-4553-a2c6-dba220585545" width="50" height="50"/> | <img src="https://github.com/user-attachments/assets/e156d68a-a307-4148-a2cf-cc7f2a2f44f2" width="50" height="50"/> | <img src="https://github.com/user-attachments/assets/7697120e-ced5-447a-9652-a85c9a88ac27" width="50" height="50"/> |
+| 팀장 | 팀원 | 팀원 | 팀원 | 팀원 |
 ## 프로젝트 소개
 ![프로젝트 소개 pdf-1-2](https://github.com/user-attachments/assets/1ad75f60-3c7e-4a17-98c9-63d3b1b2065a)
+
+
+
 
 **BeyondCloud**는 사용자들에게 다양한 음악을 즐길 수 있는 서비스를 제공하는 플랫폼입니다.
 
