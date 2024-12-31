@@ -123,13 +123,41 @@ DECLARE c_reg_date DATETIME;
 	-- 날짜 순서대로 정렬되어 있는 노래들 중 제일 먼저 등록한 노래가 먼저 나오도록 
 	SELECT song_id
 	FROM Song_in_nowplaylist
-	WHERE nowPlayList_id = n_ply_id AND reg_date < c_reg_date
+	WHERE nowPlayList_id = n_ply_id AND reg_date > c_reg_date
 	ORDER BY reg_date
 	LIMIT 1;
 	
 END $$
 DELIMITER ;
 
+
+DELIMITER $$
+
+CREATE TRIGGER after_song_del_from_listening_song
+AFTER DELETE ON Listening_song
+FOR EACH ROW
+BEGIN
+    DECLARE n_ply_id BIGINT(20);
+    DECLARE c_reg_date DATETIME;
+    DECLARE next_song_id BIGINT(20);
+
+    -- 삭제된 노래에 대한 reg_date 조회
+    SELECT reg_date INTO c_reg_date
+    FROM song_in_nowplaylist
+    WHERE nowPlayList_id = OLD.nowPlaylist_id AND song_id = OLD.Listening_song_id;
+
+    -- 삭제된 노래 이후의 노래들 중에서 가장 먼저 등록된 노래를 찾음
+    SELECT song_id INTO next_song_id
+    FROM Song_in_nowplaylist
+    WHERE nowPlayList_id = n_ply_id AND reg_date > c_reg_date
+    ORDER BY reg_date
+    LIMIT 1;
+
+    -- 찾은 다음 노래를 Listening_song 테이블에 추가
+    INSERT INTO Listening_song (song_id, nowPlayList_id) VALUES (next_song_id, n_ply_id);
+END $$
+
+DELIMITER ;
 
 -- 현재 재생 목록에 노래 추가
 -- 유저 아이디, 노래 아이디를 입력 받기

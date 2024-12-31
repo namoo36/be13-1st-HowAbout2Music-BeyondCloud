@@ -199,7 +199,7 @@ BEGIN
 		
 		
 		IF ISNULL(song_u_id) THEN 
-			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT =  '해당 노래가 존재하지 않습니다.';
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT =  '삭제 권한이 없습니다.';
 			
 		ELSE 
 			-- 노래가 존재할 경우 해당 노래를 삭제
@@ -272,6 +272,20 @@ CREATE OR REPLACE PROCEDURE user_comment(
 BEGIN 
 	INSERT INTO comment(content, member_id, song_id)
    VALUES (c_contents, uid, s_id);
+END $$
+DELIMITER ;
+
+
+
+-- < 노래에 대한 댓글 삭제 가능 > 
+--   유저 아이디, 댓글 아이디 입력 받아서 삭제 가능.
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE user_comment_del(
+	IN uid BIGINT (20),
+	IN c_id BIGINT (20)
+)
+BEGIN 
+	DELETE FROM comment WHERE comment_id = c_id;
 END $$
 DELIMITER ;
 

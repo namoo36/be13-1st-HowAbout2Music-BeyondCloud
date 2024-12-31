@@ -3,7 +3,37 @@
 -- make_playlist(유저 아이디, 플리 이름, 공유 유무())
 
 -- 닉네임 첸의 김종대씨는 '나의행복플리'라는 이름으로 공유를 허용해서 플리를 만들고자 한다. 
+
 CALL make_playlist(447, '나의행복플리', 1);
+CALL make_playlist(447, '나의기쁨플리', 0);
+CALL make_playlist(447, '나의슬픔플리', 0);
+CALL make_playlist(447, '나의즐거움플리', 1);
+
+-- 앨범 아이디, 플리 아이디
+
+CALL album_in_ply(122, 4);
+
+CALL make_playlist(377, '플리1', 1);
+CALL make_playlist(377, '플리2', 1);
+CALL make_playlist(377, '플리3', 1);
+CALL make_playlist(377, '플리4', 1);
+
+CALL make_playlist(435, '진소리1', 1);
+CALL make_playlist(435, '진소리2', 1);
+CALL make_playlist(435, '진소리3', 1);
+CALL make_playlist(435, '진소리4', 1);
+
+
+
+SELECT *
+FROM album;
+
+SELECT *
+FROM song_in_playlist;
+
+
+CALL album_in_ply(8, 9);
+
 
 SELECT *
 FROM playlist
@@ -47,14 +77,14 @@ CALL insert_one_song_only_artist(447, '우리 어떻게할까요', 'K-POP', '사
 -- 미노이는 자신의 새 앨범에 노래 목록들을 추가하고자 한다. 
 CALL insert_songs_only_artist(522, '꼬셔야겠어, 오늘 밤은 고비다, This is my life', '랩', 'This is my life', '240, 255, 174');
 
-SELECT *
-FROM album
-WHERE member_id = 522;
-
-SELECT *
-FROM song
-WHERE album_id = 183;
-
+SELECT a.name AS '앨범명',
+		a.member_id,
+		s.name AS '노래명',
+		s.genre AS '장르',
+		s.`length` AS '곡길이'
+FROM album AS a
+JOIN song AS s ON a.album_id = s.album_id
+WHERE member_id = 522 AND a.`name` LIKE 'This is my life';
 
 -- 4) 아티스트이면 내가 올린 노래일 경우 노래를 삭제할 수 있다
 -- 미노이는 자신의 노래 중 꼬셔야겠어라는 노래 제목이 부끄러워 해당 노래를 삭제하고자 한다. 
@@ -93,6 +123,12 @@ WHERE song_id = 309;
 -- 송대관씨는 자신의 드립이 약간 맘에 안드는지 댓글을 추가로 또 쓰고자 한다.
 CALL user_comment(378, 309, '아침이 고비면 저녁은 더하기인가?ㅎㅎ');
 
+SELECT *
+FROM comment
+WHERE song_id = 309;
+
+-- 송대관씨는 자신의 이러한 행동이 아주 약간은 주책같이 느껴져 아침 드립은 지우고자 한다. 
+CALL user_comment_del(378, 2);
 SELECT *
 FROM comment
 WHERE song_id = 309;
@@ -157,15 +193,16 @@ WHERE playlist_id = 1;
 -- 해당 노래를 재생하면 현재 재생 목록이 없었을 경우 재생목록을 새로 생성한 뒤, 
 -- 재생중인 노래에 노래를 추가하고
 -- 현재 재생 목록에도 노래를 추가합니다. 
-CALL play_song_current_ply(522, 303);
+CALL play_song_current_ply(522, 304);
 
 SELECT *
 FROM nowplaylist
 WHERE member_id = 522;
 
-SELECT *
-FROM song_in_nowplaylist
-WHERE nowplaylist_id = 1;
+SELECT nowPlaylist_id, s.song_id, s.name, Streaming_cnt
+FROM song_in_nowplaylist AS sn
+JOIN song AS s ON s.song_id = sn.song_id
+WHERE nowplaylist_id = 2;
 
 
 -- 동일한 노래를 또 추가할 경우 재생 중인 노래는 변하지 않고, 현재 재생 목록에도 중복된 노래는 들어가지 않습니다.
