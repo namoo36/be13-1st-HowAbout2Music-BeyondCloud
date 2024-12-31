@@ -2067,34 +2067,34 @@ DELIMITER ;
 
 
 ```sql
-    DELIMITER $$
-    CREATE OR REPLACE PROCEDURE next_cur_song(
-    	IN u_id BIGINT(20),
-    	IN s_id BIGINT(20)
-    )
-    BEGIN
-    DECLARE n_ply_id BIGINT(20);
-    DECLARE c_reg_date DATETIME;
-    
-    	-- 입력으로 받은 회원 아이디로 현재 재생목록 아이디를 조회, n_ply_id에 저장
-    	SELECT nowPlayList_id INTO n_ply_id
-    	FROM nowplaylist
-    	WHERE member_id = u_id; 
-    	
-    	-- 조회한 플레이 리스트 아이디 및 노래 아이디로 reg_date 조회
-    	SELECT reg_date INTO c_reg_date
-    	FROM Song_in_nowplaylist
-    	WHERE nowPlayList_id = n_ply_id AND song_id = s_id;
-    	
-    	-- 날짜 순서대로 정렬되어 있는 노래들 중 제일 먼저 등록한 노래가 먼저 나오도록 
-    	SELECT song_id
-    	FROM Song_in_nowplaylist
-    	WHERE nowPlayList_id = n_ply_id AND reg_date < c_reg_date
-    	ORDER BY reg_date
-    	LIMIT 1;
-    	
-    END $$
-    DELIMITER ;
+	DELIMITER $$
+	
+	CREATE TRIGGER after_song_del_from_listening_song
+	AFTER DELETE ON Listening_song
+	FOR EACH ROW
+	BEGIN
+	    DECLARE n_ply_id BIGINT(20);
+	    DECLARE c_reg_date DATETIME;
+	    DECLARE next_song_id BIGINT(20);
+	
+	    -- 삭제된 노래에 대한 reg_date 조회
+	    SELECT reg_date INTO c_reg_date
+	    FROM song_in_nowplaylist
+	    WHERE nowPlayList_id = OLD.nowPlaylist_id AND song_id = OLD.Listening_song_id;
+	
+	    -- 삭제된 노래 이후의 노래들 중에서 가장 먼저 등록된 노래를 찾음
+	    SELECT song_id INTO next_song_id
+	    FROM Song_in_nowplaylist
+	    WHERE nowPlayList_id = n_ply_id AND reg_date > c_reg_date
+	    ORDER BY reg_date
+	    LIMIT 1;
+	
+	    -- 찾은 다음 노래를 Listening_song 테이블에 추가
+	    INSERT INTO Listening_song (song_id, nowPlayList_id) VALUES (next_song_id, n_ply_id);
+	END $$
+	
+	DELIMITER ;
+
 ```
 
 </div>
